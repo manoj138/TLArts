@@ -119,7 +119,7 @@ export default function EnquirySection() {
     const text = encodeURIComponent(
       `Hello Tushar Lohar Arts (TLArts)!\n\nI just submitted a custom portrait commission request on your website:\n• Name: ${formData.name || 'Art Lover'}\n• Contact: ${formData.contact}\n• Sketch Type: ${formData.sketchType}\n• Preferred Size: ${formData.size}${hasPhotoText}\n• Notes: ${formData.message || 'Looking for pricing and availability.'}\n\nLet's discuss further on WhatsApp!`
     );
-    return `https://wa.me/919876543210?text=${text}`;
+    return `https://wa.me/919673400446?text=${text}`;
   };
 
   return (

@@ -15,7 +15,8 @@ export const ARTIST_INFO = {
   bio: 'Specializing in hyper-realistic pencil sketches, graphite portraiture, and charcoal studies that capture raw human emotion and lifelike detail.',
   location: 'Maharashtra, India',
   email: 'tusharlohar.arts@gmail.com',
-  whatsappNumber: '+919876543210' // Placeholder for direct enquiry
+  whatsappNumber: '+919673400446',
+  whatsappUrl: 'https://wa.me/919673400446'
 };
 
 export const ARTWORK_CATEGORIES = [
