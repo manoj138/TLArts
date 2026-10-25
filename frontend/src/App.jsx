@@ -9,9 +9,13 @@ import InstagramSection from './components/InstagramSection/InstagramSection';
 import EnquirySection from './components/EnquirySection/EnquirySection';
 import Footer from './components/Footer/Footer';
 import ArtworkModal from './components/ArtworkModal/ArtworkModal';
+import OwnerAuthModal from './components/OwnerPortal/OwnerAuthModal';
+import AddArtworkModal from './components/OwnerPortal/AddArtworkModal';
+import OwnerFloatingBar from './components/OwnerPortal/OwnerFloatingBar';
+import { ArtworkProvider } from './context/ArtworkContext';
 import './App.css';
 
-function App() {
+function AppContent() {
   const [selectedArtwork, setSelectedArtwork] = useState(null);
 
   const handleSelectArtwork = (artwork) => {
@@ -24,10 +28,10 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* Editorial Fixed Navbar */}
+      {/* Editorial Fixed Navbar with 4-Click Secret Trigger */}
       <Navbar />
 
-      {/* CRITICAL: Preserved Hero Scrolling Canvas Animation (Information updated only) */}
+      {/* CRITICAL: Preserved Hero Scrolling Canvas Animation (Untouched) */}
       <HeroScroll />
 
       {/* Main Portfolio Sections */}
@@ -61,8 +65,19 @@ function App() {
           onClose={handleCloseModal}
         />
       )}
+
+      {/* Secret Owner Portal Components */}
+      <OwnerAuthModal />
+      <AddArtworkModal />
+      <OwnerFloatingBar />
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <ArtworkProvider>
+      <AppContent />
+    </ArtworkProvider>
+  );
+}

@@ -1,9 +1,10 @@
 import { Sparkles, ArrowUpRight } from 'lucide-react';
 import InstagramIcon from '../common/InstagramIcon';
-import { ARTWORKS_DATA } from '../../data/artworks';
+import { useArtworks } from '../../context/ArtworkContext';
 
 export default function FeaturedSketches({ onSelectArtwork }) {
-  const featuredList = ARTWORKS_DATA.filter((art) => art.isFeatured);
+  const { artworks } = useArtworks();
+  const featuredList = artworks.filter((art) => art.isFeatured);
 
   return (
     <section id="featured" className="py-24 px-6 md:px-12 bg-[#0b0b10] border-t border-white/5">

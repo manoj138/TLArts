@@ -1,15 +1,17 @@
 import { useState, useMemo } from 'react';
 import { Search, Filter, Eye, X } from 'lucide-react';
 import InstagramIcon from '../common/InstagramIcon';
-import { ARTWORKS_DATA, ARTWORK_CATEGORIES } from '../../data/artworks';
+import { ARTWORK_CATEGORIES } from '../../data/artworks';
+import { useArtworks } from '../../context/ArtworkContext';
 
 export default function SketchGallery({ onSelectArtwork }) {
+  const { artworks } = useArtworks();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Filter artworks based on category and search query
   const filteredArtworks = useMemo(() => {
-    return ARTWORKS_DATA.filter((item) => {
+    return artworks.filter((item) => {
       const matchesCategory =
         selectedCategory === 'All' || item.category === selectedCategory;
       const matchesSearch =
@@ -18,7 +20,7 @@ export default function SketchGallery({ onSelectArtwork }) {
         item.medium.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [artworks, selectedCategory, searchQuery]);
 
   return (
     <section id="gallery" className="py-28 px-6 md:px-12 bg-[#08080c] border-t border-white/5">
@@ -83,7 +85,7 @@ export default function SketchGallery({ onSelectArtwork }) {
         {/* Count & Status */}
         <div className="flex justify-between items-center text-xs text-slate-400 border-b border-white/5 pb-4 mb-8">
           <span>
-            Showing <strong className="text-white font-medium">{filteredArtworks.length}</strong> of {ARTWORKS_DATA.length} sketches
+            Showing <strong className="text-white font-medium">{filteredArtworks.length}</strong> of {artworks.length} sketches
           </span>
           {selectedCategory !== 'All' && (
             <span className="flex items-center gap-1.5 text-[#c5a059] bg-[#c5a059]/10 px-2.5 py-1 rounded font-mono">
