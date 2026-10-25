@@ -1,0 +1,350 @@
+/* ==========================================================================
+   ENQUIRY SECTION - TLARTS COMMISSION BOOKING
+   ========================================================================== */
+
+.enquiry-section {
+  padding: 110px 32px 100px;
+  background: #0b0b10;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.enquiry-container {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.enquiry-split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 60px;
+  align-items: flex-start;
+}
+
+.enquiry-info-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.enquiry-intro-p {
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: #cbd5e1;
+  margin: 0 0 32px;
+}
+
+/* Guide Box */
+.guide-box {
+  background: #111118;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 26px 24px;
+  margin-bottom: 30px;
+}
+
+.guide-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: 0.5px;
+  color: #c5a059;
+  margin: 0 0 16px;
+}
+
+.guide-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.guide-list li {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #94a3b8;
+}
+
+.guide-list strong {
+  color: #ffffff;
+}
+
+/* Direct Reach */
+.artist-direct-reach {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.direct-reach-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 1.5px;
+  color: #64748b;
+}
+
+.reach-links {
+  display: flex;
+  gap: 12px;
+}
+
+.reach-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: #c5a059;
+  background: rgba(197, 160, 89, 0.08);
+  border: 1px solid rgba(197, 160, 89, 0.25);
+  padding: 8px 16px;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: all 0.25s;
+}
+
+.reach-pill:hover {
+  background: rgba(197, 160, 89, 0.18);
+  border-color: #c5a059;
+  color: #ffffff;
+}
+
+/* Form Card */
+.enquiry-form-card {
+  background: #111118;
+  border: 1px solid rgba(197, 160, 89, 0.25);
+  border-radius: 20px;
+  padding: 40px 36px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.form-header {
+  margin-bottom: 28px;
+}
+
+.form-card-title {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  letter-spacing: 0.8px;
+  color: #ffffff;
+  margin: 0 0 6px;
+}
+
+.form-card-sub {
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.commission-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 1px;
+  color: #cbd5e1;
+  text-transform: uppercase;
+}
+
+.required-star {
+  color: #ff4d6d;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  background: rgba(18, 18, 26, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.25s;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: #c5a059;
+  box-shadow: 0 0 15px rgba(197, 160, 89, 0.2);
+}
+
+.form-input.input-error {
+  border-color: #ff4d6d;
+}
+
+.error-msg {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  color: #ff4d6d;
+  margin-top: 2px;
+}
+
+.form-select {
+  cursor: pointer;
+}
+
+.form-textarea {
+  resize: vertical;
+}
+
+.btn-submit-enquiry {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #09090d;
+  background: linear-gradient(135deg, #e8c985 0%, #c5a059 100%);
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: 0 6px 20px rgba(197, 160, 89, 0.35);
+  transition: all 0.3s ease;
+}
+
+.btn-submit-enquiry:hover {
+  background: linear-gradient(135deg, #f5dca2 0%, #d4af37 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(197, 160, 89, 0.5);
+}
+
+/* Success State */
+.form-success-state {
+  text-align: center;
+  padding: 30px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.success-icon-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(197, 160, 89, 0.15);
+  color: #c5a059;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.success-title {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  margin: 0;
+}
+
+.success-text {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: #cbd5e1;
+  line-height: 1.6;
+  max-width: 440px;
+  margin: 0;
+}
+
+.success-dispatch-box {
+  background: rgba(22, 22, 31, 0.8);
+  border: 1px solid rgba(197, 160, 89, 0.25);
+  border-radius: 12px;
+  padding: 20px;
+  width: 100%;
+  margin: 10px 0;
+}
+
+.dispatch-hint {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #c5a059;
+  margin: 0 0 14px;
+}
+
+.dispatch-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-dispatch-ig,
+.btn-dispatch-wa {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.25s;
+}
+
+.btn-dispatch-ig {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-dispatch-ig:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-dispatch-wa {
+  background: #25d366;
+  color: #000;
+}
+
+.btn-dispatch-wa:hover {
+  background: #2ee673;
+}
+
+.btn-reset-form {
+  background: transparent;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #94a3b8;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.btn-reset-form:hover {
+  color: #ffffff;
+}
+
+@media (max-width: 900px) {
+  .enquiry-split-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}

@@ -1,0 +1,427 @@
+/* ==========================================================================
+   GTA VI STYLE HERO SCROLL - CINEMATIC CSS
+   ========================================================================== */
+
+.hero-scroll-track {
+  position: relative;
+  width: 100%;
+  height: 380vh; /* Scroll distance for scrubbing through frames */
+  background: #050508;
+}
+
+/* Sticky viewport that stays pinned during scroll */
+.hero-sticky-frame {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: #030305;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+/* Canvas taking full screen */
+.hero-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  display: block;
+}
+
+/* Cinematic Dark Vignette & Color Grading */
+.hero-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: 
+    radial-gradient(circle at center, transparent 35%, rgba(3, 3, 6, 0.75) 85%, #030306 100%),
+    linear-gradient(180deg, rgba(3, 3, 6, 0.8) 0%, transparent 20%, transparent 75%, #050508 100%);
+}
+
+/* Subtle Film Scanlines */
+.hero-scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(
+    rgba(18, 16, 26, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+  opacity: 0.45;
+}
+
+/* Cinematic Grain / Noise Texture */
+.hero-glow-ambient {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(
+    60% 60% at 50% 50%,
+    rgba(255, 42, 133, 0.08) 0%,
+    rgba(0, 242, 254, 0.04) 50%,
+    transparent 100%
+  );
+}
+
+/* Top HUD Navigation is now unified in Navbar */
+
+/* ==========================================================================
+   DYNAMIC STORY OVERLAYS (GTA VI TYPOGRAPHY)
+   ========================================================================== */
+
+.hero-content-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 32px;
+  pointer-events: none;
+}
+
+.story-card {
+  position: absolute;
+  max-width: 900px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), 
+              transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
+}
+
+.story-card.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.story-card.hidden-up {
+  opacity: 0;
+  transform: translateY(-40px) scale(0.96);
+  pointer-events: none;
+}
+
+.story-card.hidden-down {
+  opacity: 0;
+  transform: translateY(40px) scale(0.96);
+  pointer-events: none;
+}
+
+.badge-tagline {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gta-orange);
+  background: rgba(255, 119, 0, 0.12);
+  border: 1px solid rgba(255, 119, 0, 0.35);
+  padding: 6px 18px;
+  border-radius: 40px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 20px rgba(255, 119, 0, 0.2);
+}
+
+.gta-headline {
+  font-family: var(--font-display);
+  font-size: clamp(3.8rem, 9vw, 8.5rem);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin: 0;
+  background: linear-gradient(180deg, #ffffff 30%, #ff8533 75%, #ff1a75 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 40px rgba(255, 42, 133, 0.3));
+}
+
+.gta-headline.cyan-accent {
+  background: linear-gradient(180deg, #ffffff 30%, #44f0ff 75%, #0088ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 40px rgba(0, 242, 254, 0.3));
+}
+
+.story-description {
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 2vw, 1.35rem);
+  font-weight: 500;
+  color: #e2e8f0;
+  max-width: 650px;
+  margin: 0;
+  line-height: 1.5;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+.tags-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.pill-item {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 6px 14px;
+  border-radius: 6px;
+  backdrop-filter: blur(6px);
+}
+
+.cta-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.cta-primary {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: 1.5px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #ff2a85 0%, #ff7700 100%);
+  border: none;
+  padding: 14px 38px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 0 30px rgba(255, 42, 133, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cta-primary:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 0 45px rgba(255, 42, 133, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+  background: linear-gradient(135deg, #ff4095 0%, #ff881a 100%);
+}
+
+.cta-secondary {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: 1.5px;
+  color: #ffffff;
+  background: rgba(15, 15, 22, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 14px 34px;
+  border-radius: 8px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.cta-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   BOTTOM HUD & PROGRESS INDICATOR
+   ========================================================================== */
+
+.hero-bottom-hud {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 24px 48px;
+  background: linear-gradient(0deg, rgba(3, 3, 6, 0.9) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.hud-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.frame-telemetry {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
+  color: var(--gta-cyan);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-location {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  color: #8c8c9e;
+  text-transform: uppercase;
+}
+
+.hud-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.scroll-prompt {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  color: #ffffff;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: bounce 2s infinite ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+.hud-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.progress-number {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+
+.progress-track {
+  width: 140px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gta-pink), var(--gta-orange), var(--gta-cyan));
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+
+/* ==========================================================================
+   PRELOADER OVERLAY
+   ========================================================================== */
+
+.hero-loader-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: #050508;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  transition: opacity 0.6s ease;
+}
+
+.loader-title {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  letter-spacing: 4px;
+  background: linear-gradient(135deg, #ffffff 30%, #ff7700 70%, #ff2a85 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+}
+
+.loader-status {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  color: var(--gta-cyan);
+  text-transform: uppercase;
+}
+
+.loader-bar-bg {
+  width: 260px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.loader-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff2a85, #ff7700);
+  transition: width 0.2s ease;
+}
+
+/* ==========================================================================
+   MOBILE & RESPONSIVE ADJUSTMENTS
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .hero-nav {
+    padding: 20px 24px;
+  }
+  
+  .brand-logo-text {
+    font-size: 1.8rem;
+  }
+  
+  .brand-tag,
+  .hud-specs {
+    display: none;
+  }
+  
+  .hero-bottom-hud {
+    padding: 18px 24px;
+  }
+  
+  .hud-center {
+    display: none;
+  }
+  
+  .cta-row {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .cta-primary,
+  .cta-secondary {
+    width: 100%;
+    justify-content: center;
+    font-size: 1.3rem;
+    padding: 12px 20px;
+  }
+}

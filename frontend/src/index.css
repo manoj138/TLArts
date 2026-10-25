@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+@theme {
+  --color-charcoal-950: #060609;
+  --color-charcoal-900: #0a0a0f;
+  --color-charcoal-800: #111118;
+  --color-charcoal-700: #181824;
+  --color-gold-300: #f5dca2;
+  --color-gold-400: #e8c985;
+  --color-gold-500: #c5a059;
+  --color-gold-600: #b08d46;
+  --font-display: 'Bebas Neue', 'Syne', sans-serif;
+  --font-serif: 'Cinzel', serif;
+  --font-sans: 'Outfit', 'Montserrat', sans-serif;
+  --font-mono: 'Space Grotesk', ui-monospace, monospace;
+}
+
+:root {
+  --text: #cbd5e1;
+  --text-h: #ffffff;
+  --bg: #09090d;
+  --border: rgba(255, 255, 255, 0.1);
+  --accent: #ff007f;
+  --accent-secondary: #00f0ff;
+  --accent-gold: #ffbe0b;
+  --gta-pink: #ff2a85;
+  --gta-orange: #ff7700;
+  --gta-cyan: #00f2fe;
+  
+  --font-display: 'Bebas Neue', 'Syne', sans-serif;
+  --font-sans: 'Outfit', 'Montserrat', sans-serif;
+  --font-mono: 'Space Grotesk', ui-monospace, monospace;
+
+  font-family: var(--font-sans);
+  color-scheme: dark;
+  color: var(--text);
+  background-color: var(--bg);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  overflow-x: clip;
+}
+
+/* Custom GTA VI styled scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #09090d;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--gta-pink), var(--gta-orange));
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gta-cyan);
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1,
+h2 {
+  font-family: var(--heading);
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+h1 {
+  font-size: 56px;
+  letter-spacing: -1.68px;
+  margin: 32px 0;
+  @media (max-width: 1024px) {
+    font-size: 36px;
+    margin: 20px 0;
+  }
+}
+h2 {
+  font-size: 24px;
+  line-height: 118%;
+  letter-spacing: -0.24px;
+  margin: 0 0 8px;
+  @media (max-width: 1024px) {
+    font-size: 20px;
+  }
+}
+p {
+  margin: 0;
+}
+
+code,
+.counter {
+  font-family: var(--mono);
+  display: inline-flex;
+  border-radius: 4px;
+  color: var(--text-h);
+}
+
+code {
+  font-size: 15px;
+  line-height: 135%;
+  padding: 4px 8px;
+  background: var(--code-bg);
+}

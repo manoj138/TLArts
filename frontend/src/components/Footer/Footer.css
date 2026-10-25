@@ -1,0 +1,167 @@
+/* ==========================================================================
+   FOOTER - TLARTS EDITORIAL ELEGANCE
+   ========================================================================== */
+
+.tlarts-footer {
+  background: #060609;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 80px 32px 36px;
+  position: relative;
+  z-index: 10;
+}
+
+.footer-container {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.footer-top-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 50px;
+  margin-bottom: 60px;
+}
+
+.footer-brand-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-brand-wordmark {
+  font-family: var(--font-display);
+  font-size: 2.8rem;
+  letter-spacing: 2px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #ffffff 40%, #c5a059 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.footer-fullname {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  color: #c5a059;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.footer-tagline {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-style: italic;
+  color: #e2e8f0;
+  margin: 0 0 12px;
+}
+
+.footer-bio-snippet {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #64748b;
+  max-width: 400px;
+  margin: 0;
+}
+
+.footer-col-title {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 2px;
+  color: #94a3b8;
+  margin: 0 0 20px;
+  text-transform: uppercase;
+}
+
+.footer-links-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-nav-link {
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-nav-link:hover {
+  color: #c5a059;
+}
+
+.social-sub {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #64748b;
+  margin: 0 0 16px;
+}
+
+.footer-ig-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: #ffffff;
+  background: rgba(197, 160, 89, 0.12);
+  border: 1px solid rgba(197, 160, 89, 0.3);
+  padding: 10px 18px;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: all 0.25s;
+}
+
+.footer-ig-badge:hover {
+  background: rgba(197, 160, 89, 0.25);
+  border-color: #c5a059;
+  transform: translateY(-2px);
+}
+
+/* Bottom Bar */
+.footer-bottom-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.copyright-text {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.btn-back-to-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(22, 22, 31, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-back-to-top:hover {
+  background: rgba(197, 160, 89, 0.2);
+  border-color: #c5a059;
+  color: #ffffff;
+}
+
+@media (max-width: 900px) {
+  .footer-top-row {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}

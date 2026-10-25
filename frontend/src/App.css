@@ -1,0 +1,20 @@
+/* ==========================================================================
+   APP CONTAINER & MAIN CONTENT - TLARTS LUXURY PORTFOLIO
+   ========================================================================== */
+
+.app-container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #060609;
+  color: #e2e8f0;
+  overflow-x: clip;
+  position: relative;
+}
+
+.main-content {
+  position: relative;
+  z-index: 20;
+  background: #08080c;
+  box-shadow: 0 -30px 60px rgba(0, 0, 0, 0.9);
+}
+

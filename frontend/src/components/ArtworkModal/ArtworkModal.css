@@ -1,0 +1,277 @@
+/* ==========================================================================
+   ARTWORK MODAL - TLARTS CURATORIAL DETAIL VIEW
+   ========================================================================== */
+
+.modal-backdrop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(3, 3, 6, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-container-card {
+  position: relative;
+  background: #101017;
+  border: 1px solid rgba(197, 160, 89, 0.3);
+  border-radius: 20px;
+  max-width: 1040px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 40px rgba(197, 160, 89, 0.15);
+  animation: modalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 10;
+  background: rgba(22, 22, 31, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.modal-close-btn:hover {
+  background: rgba(197, 160, 89, 0.2);
+  color: #ffffff;
+  border-color: #c5a059;
+  transform: rotate(90deg);
+}
+
+/* Split Grid */
+.modal-split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  min-height: 520px;
+}
+
+.modal-image-column {
+  background: #08080b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 30px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.modal-img-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-full-img {
+  max-width: 100%;
+  max-height: 520px;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+  filter: contrast(1.05);
+}
+
+.modal-zoom-badge {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(9, 9, 13, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  padding: 5px 14px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 1px;
+  color: #c5a059;
+  white-space: nowrap;
+}
+
+/* Info Column */
+.modal-info-column {
+  padding: 44px 38px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.modal-meta-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.modal-category-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #c5a059;
+  background: rgba(197, 160, 89, 0.1);
+  border: 1px solid rgba(197, 160, 89, 0.25);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.modal-year {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 3.5vw, 3rem);
+  letter-spacing: 1px;
+  color: #ffffff;
+  margin: 0 0 14px;
+  line-height: 1.1;
+}
+
+.modal-description {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #cbd5e1;
+  margin: 0 0 24px;
+}
+
+/* Specs */
+.modal-specs-box {
+  background: rgba(22, 22, 31, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.spec-row {
+  display: flex;
+  font-size: 0.88rem;
+  gap: 10px;
+}
+
+.spec-label {
+  font-family: var(--font-mono);
+  color: #94a3b8;
+  width: 90px;
+  flex-shrink: 0;
+}
+
+.spec-val {
+  font-family: var(--font-sans);
+  color: #e2e8f0;
+  font-weight: 500;
+}
+
+/* Instagram Action Box */
+.modal-ig-action-box {
+  background: linear-gradient(135deg, rgba(25, 20, 35, 0.9) 0%, rgba(15, 15, 22, 0.9) 100%);
+  border: 1px solid rgba(197, 160, 89, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ig-action-text strong {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  color: #ffffff;
+  display: block;
+  letter-spacing: 0.5px;
+}
+
+.ig-action-text p {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin: 4px 0 0;
+}
+
+.btn-view-on-instagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0b0b0e;
+  background: linear-gradient(135deg, #e8c985 0%, #c5a059 100%);
+  padding: 12px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(197, 160, 89, 0.35);
+  transition: all 0.3s ease;
+}
+
+.btn-view-on-instagram:hover {
+  background: linear-gradient(135deg, #f5dca2 0%, #d4af37 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(197, 160, 89, 0.5);
+}
+
+@media (max-width: 860px) {
+  .modal-split-grid {
+    grid-template-columns: 1fr;
+  }
+  .modal-image-column {
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .modal-info-column {
+    padding: 30px 24px;
+  }
+}
