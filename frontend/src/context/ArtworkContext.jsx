@@ -10,8 +10,8 @@ const AUTH_KEY = 'tlarts_owner_auth';
 export function ArtworkProvider({ children }) {
   const [artworks, setArtworks] = useState(ARTWORKS_DATA);
   const [isOwner, setIsOwner] = useState(false);
+  const [currentView, setCurrentView] = useState('portfolio'); // 'portfolio' | 'studio'
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Load custom artworks & auth state from localStorage on mount
   useEffect(() => {
@@ -35,15 +35,29 @@ export function ArtworkProvider({ children }) {
       setIsOwner(true);
       localStorage.setItem(AUTH_KEY, 'true');
       setIsAuthModalOpen(false);
+      setCurrentView('studio'); // Open full page studio dashboard immediately!
       return { success: true };
     }
     return { success: false, error: 'Incorrect Passcode. Access Denied.' };
   };
 
+  const openStudio = () => {
+    if (isOwner) {
+      setCurrentView('studio');
+    } else {
+      setIsAuthModalOpen(true);
+    }
+  };
+
+  const closeStudio = () => {
+    setCurrentView('portfolio');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const logoutOwner = () => {
     setIsOwner(false);
     localStorage.removeItem(AUTH_KEY);
-    setIsAddModalOpen(false);
+    setCurrentView('portfolio');
   };
 
   // Add new artwork
@@ -78,10 +92,12 @@ export function ArtworkProvider({ children }) {
       value={{
         artworks,
         isOwner,
+        currentView,
+        setCurrentView,
         isAuthModalOpen,
         setIsAuthModalOpen,
-        isAddModalOpen,
-        setIsAddModalOpen,
+        openStudio,
+        closeStudio,
         verifyPasscode,
         logoutOwner,
         addArtwork,

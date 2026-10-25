@@ -5,7 +5,7 @@ import { ARTIST_INFO } from '../../data/artworks';
 import { useArtworks } from '../../context/ArtworkContext';
 
 export default function Navbar() {
-  const { setIsAuthModalOpen } = useArtworks();
+  const { openStudio } = useArtworks();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
@@ -24,7 +24,7 @@ export default function Navbar() {
     if (clickCountRef.current >= 4) {
       e.preventDefault();
       clickCountRef.current = 0;
-      setIsAuthModalOpen(true);
+      openStudio();
       return;
     }
 

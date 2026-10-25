@@ -10,12 +10,13 @@ import EnquirySection from './components/EnquirySection/EnquirySection';
 import Footer from './components/Footer/Footer';
 import ArtworkModal from './components/ArtworkModal/ArtworkModal';
 import OwnerAuthModal from './components/OwnerPortal/OwnerAuthModal';
-import AddArtworkModal from './components/OwnerPortal/AddArtworkModal';
+import OwnerStudioPage from './components/OwnerPortal/OwnerStudioPage';
 import OwnerFloatingBar from './components/OwnerPortal/OwnerFloatingBar';
-import { ArtworkProvider } from './context/ArtworkContext';
+import { ArtworkProvider, useArtworks } from './context/ArtworkContext';
 import './App.css';
 
 function AppContent() {
+  const { currentView } = useArtworks();
   const [selectedArtwork, setSelectedArtwork] = useState(null);
 
   const handleSelectArtwork = (artwork) => {
@@ -25,6 +26,11 @@ function AppContent() {
   const handleCloseModal = () => {
     setSelectedArtwork(null);
   };
+
+  // Dedicated Full-Page Owner Studio CMS view
+  if (currentView === 'studio') {
+    return <OwnerStudioPage />;
+  }
 
   return (
     <div className="app-container">
@@ -66,9 +72,8 @@ function AppContent() {
         />
       )}
 
-      {/* Secret Owner Portal Components */}
+      {/* Secret Owner Portal Passcode Modal & Floating Bar */}
       <OwnerAuthModal />
-      <AddArtworkModal />
       <OwnerFloatingBar />
     </div>
   );

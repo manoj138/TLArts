@@ -1,8 +1,8 @@
-import { Plus, LogOut, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, LogOut, ShieldCheck } from 'lucide-react';
 import { useArtworks } from '../../context/ArtworkContext';
 
 export default function OwnerFloatingBar() {
-  const { isOwner, setIsAddModalOpen, logoutOwner } = useArtworks();
+  const { isOwner, openStudio, logoutOwner } = useArtworks();
 
   if (!isOwner) return null;
 
@@ -21,10 +21,10 @@ export default function OwnerFloatingBar() {
       <button
         type="button"
         className="flex items-center gap-1.5 bg-gradient-to-r from-[#e8c985] to-[#c5a059] hover:from-[#f5dca2] hover:to-[#e8c985] text-black font-semibold text-xs px-3.5 py-1.5 rounded-lg shadow-md transition-all cursor-pointer"
-        onClick={() => setIsAddModalOpen(true)}
+        onClick={openStudio}
       >
-        <Plus size={14} />
-        <span>Add Sketch</span>
+        <LayoutDashboard size={14} />
+        <span>Studio Dashboard →</span>
       </button>
 
       <button

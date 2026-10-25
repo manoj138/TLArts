@@ -3,7 +3,7 @@ import { ShieldCheck, Lock, X, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useArtworks } from '../../context/ArtworkContext';
 
 export default function OwnerAuthModal() {
-  const { isAuthModalOpen, setIsAuthModalOpen, verifyPasscode, setIsAddModalOpen } = useArtworks();
+  const { isAuthModalOpen, setIsAuthModalOpen, verifyPasscode } = useArtworks();
   const [passcode, setPasscode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -23,8 +23,6 @@ export default function OwnerAuthModal() {
     if (result.success) {
       setPasscode('');
       setError('');
-      // Open add artwork modal right away after authentication
-      setIsAddModalOpen(true);
     } else {
       setError(result.error);
       triggerShake();
