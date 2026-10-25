@@ -118,7 +118,7 @@ export default function Navbar() {
           title="TLArts - Tushar Lohar Arts"
         >
           <span className="font-['Bebas_Neue',sans-serif] text-2xl md:text-3xl tracking-widest font-black bg-gradient-to-r from-white via-white to-[#c5a059] bg-clip-text text-transparent group-hover:brightness-110 transition-all">
-            TLARTS
+            <span className='text-[#ffc14d]'>TL</span> ARTS
           </span>
           <span className="font-['Space_Grotesk',monospace] text-[10px] tracking-widest text-[#c5a059] uppercase mt-0.5">
             TUSHAR LOHAR ARTS
