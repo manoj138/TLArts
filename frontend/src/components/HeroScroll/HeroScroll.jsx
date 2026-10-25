@@ -232,7 +232,7 @@ export default function HeroScroll() {
             }`}
           >
             <div className="badge-tagline">★ TUSHAR LOHAR ARTS ★</div>
-            <h1 className="gta-headline">TLARTS</h1>
+            <h1 className="gta-headline">TL ARTS</h1>
             <p className="story-description">
               EVERY STROKE TELLS A STORY. REALISTIC GRAPHITE & CHARCOAL PORTRAITS BY TUSHAR LOHAR.
             </p>

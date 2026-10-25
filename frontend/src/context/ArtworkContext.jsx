@@ -4,7 +4,7 @@ import { ARTWORKS_DATA } from '../data/artworks';
 const ArtworkContext = createContext();
 
 const OWNER_PASSCODE = 'TLARTS@02';
-const STORAGE_KEY = 'tlarts_custom_artworks';
+const STORAGE_KEY = 'tlarts_all_artworks_v1';
 const AUTH_KEY = 'tlarts_owner_auth';
 
 export function ArtworkProvider({ children }) {
@@ -13,19 +13,35 @@ export function ArtworkProvider({ children }) {
   const [currentView, setCurrentView] = useState('portfolio'); // 'portfolio' | 'studio'
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  // Load custom artworks & auth state from localStorage on mount
+  // Load artworks collection & auth state from localStorage on mount
   useEffect(() => {
     try {
       const storedAuth = localStorage.getItem(AUTH_KEY) === 'true';
       setIsOwner(storedAuth);
 
-      const storedArtworks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-      if (Array.isArray(storedArtworks) && storedArtworks.length > 0) {
-        // Merge custom artworks at the beginning
-        setArtworks([...storedArtworks, ...ARTWORKS_DATA]);
+      const savedCollection = localStorage.getItem(STORAGE_KEY);
+      if (savedCollection) {
+        const parsed = JSON.parse(savedCollection);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setArtworks(parsed);
+          return;
+        }
+      }
+
+      // Check legacy custom artworks if any exist
+      const legacyCustom = JSON.parse(localStorage.getItem('tlarts_custom_artworks') || '[]');
+      if (Array.isArray(legacyCustom) && legacyCustom.length > 0) {
+        const combined = [...legacyCustom, ...ARTWORKS_DATA];
+        setArtworks(combined);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(combined));
+      } else {
+        // Initialize with default artworks
+        setArtworks(ARTWORKS_DATA);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(ARTWORKS_DATA));
       }
     } catch (e) {
       console.error('Failed to load local artworks:', e);
+      setArtworks(ARTWORKS_DATA);
     }
   }, []);
 
@@ -63,28 +79,45 @@ export function ArtworkProvider({ children }) {
   // Add new artwork
   const addArtwork = (newArt) => {
     const artworkEntry = {
-      id: `custom-sketch-${Date.now()}`,
+      id: `sketch-${Date.now()}`,
       slug: (newArt.title || 'custom-sketch').toLowerCase().replace(/\s+/g, '-'),
       year: newArt.year || `${new Date().getFullYear()}`,
-      isCustom: true,
       ...newArt
     };
 
-    const existingCustom = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    const updatedCustom = [artworkEntry, ...existingCustom];
+    setArtworks((prev) => {
+      const updated = [artworkEntry, ...prev];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedCustom));
-    setArtworks([...updatedCustom, ...ARTWORKS_DATA]);
     return artworkEntry;
   };
 
-  // Delete a custom added artwork
-  const deleteCustomArtwork = (id) => {
-    const existingCustom = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    const updatedCustom = existingCustom.filter((art) => art.id !== id);
+  // Update existing artwork (title, category, image, notes, instagram url, etc.)
+  const updateArtwork = (id, updatedFields) => {
+    setArtworks((prev) => {
+      const updated = prev.map((art) =>
+        art.id === id ? { ...art, ...updatedFields } : art
+      );
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  };
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedCustom));
-    setArtworks([...updatedCustom, ...ARTWORKS_DATA]);
+  // Delete any artwork by ID
+  const deleteArtwork = (id) => {
+    setArtworks((prev) => {
+      const updated = prev.filter((art) => art.id !== id);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  // Reset to original factory portfolio
+  const resetToDefaultArtworks = () => {
+    setArtworks(ARTWORKS_DATA);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(ARTWORKS_DATA));
   };
 
   return (
@@ -101,7 +134,10 @@ export function ArtworkProvider({ children }) {
         verifyPasscode,
         logoutOwner,
         addArtwork,
-        deleteCustomArtwork
+        updateArtwork,
+        deleteArtwork,
+        deleteCustomArtwork: deleteArtwork, // backward compatibility
+        resetToDefaultArtworks
       }}
     >
       {children}

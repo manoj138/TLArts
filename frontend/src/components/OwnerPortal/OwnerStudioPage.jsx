@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import {
-  ArrowLeft,
   Plus,
   Upload,
   Link as LinkIcon,
@@ -12,17 +11,15 @@ import {
   ShieldCheck,
   LogOut,
   Layers,
-  Eye,
   SlidersHorizontal,
   Inbox,
   MessageSquare,
   Download,
-  Calendar,
   Clock,
-  CheckCircle2,
-  AlertCircle,
   X,
-  Maximize2
+  Maximize2,
+  Pencil,
+  RotateCcw
 } from 'lucide-react';
 import InstagramIcon from '../common/InstagramIcon';
 import { useArtworks } from '../../context/ArtworkContext';
@@ -216,7 +213,14 @@ function InquiryCard({ inquiry, onStatusChange, onDelete, onImageClick }) {
 }
 
 export default function OwnerStudioPage() {
-  const { artworks, addArtwork, deleteCustomArtwork, closeStudio, logoutOwner } = useArtworks();
+  const {
+    artworks,
+    addArtwork,
+    updateArtwork,
+    deleteArtwork,
+    resetToDefaultArtworks,
+    logoutOwner
+  } = useArtworks();
 
   // Active Main Studio Tab
   const [activeStudioTab, setActiveStudioTab] = useState('artworks'); // 'artworks' | 'inquiries'
@@ -226,6 +230,9 @@ export default function OwnerStudioPage() {
   const [inquiriesLoading, setInquiriesLoading] = useState(false);
   const [inquiryStatusFilter, setInquiryStatusFilter] = useState('All');
   const [activeLightboxImage, setActiveLightboxImage] = useState(null);
+
+  // Edit State for Sketches
+  const [editingId, setEditingId] = useState(null);
 
   // Form Fields for Sketches CMS
   const [title, setTitle] = useState('');
@@ -282,6 +289,64 @@ export default function OwnerStudioPage() {
     }
   };
 
+  // Start editing a sketch
+  const handleStartEdit = (art) => {
+    setEditingId(art.id);
+    setTitle(art.title || '');
+    setCategory(art.category || 'Realistic Portraits');
+    setMedium(art.medium || '');
+    setDimensions(art.dimensions || '');
+    setDescription(art.description || '');
+    setImageUrl(art.imageUrl || '');
+    setImagePreview(art.imageUrl || '');
+    setInstagramPostUrl(art.instagramPostUrl || '');
+    setIsFeatured(art.isFeatured ?? true);
+    setError('');
+
+    // Smooth scroll up to form
+    const formEl = document.getElementById('sketch-form-section');
+    if (formEl) {
+      formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // Cancel edit mode and clear form
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setTitle('');
+    setCategory('Realistic Portraits');
+    setMedium('Graphite & Charcoal on 250 GSM Bristol Paper');
+    setDimensions('A3 (29.7 × 42.0 cm)');
+    setDescription('');
+    setImageUrl('');
+    setImagePreview('');
+    setInstagramPostUrl('');
+    setIsFeatured(true);
+    setError('');
+  };
+
+  // Delete an artwork
+  const handleDeleteArtwork = (art) => {
+    if (window.confirm(`Are you sure you want to permanently delete "${art.title}" from your portfolio?`)) {
+      deleteArtwork(art.id);
+      if (editingId === art.id) {
+        handleCancelEdit();
+      }
+      setSuccessMsg(`"${art.title}" has been deleted.`);
+      setTimeout(() => setSuccessMsg(''), 3000);
+    }
+  };
+
+  // Reset to original 8 default sketches
+  const handleResetDefaults = () => {
+    if (window.confirm('Reset all portfolio sketches back to the original 8 default artworks? Any edits will be restored.')) {
+      resetToDefaultArtworks();
+      handleCancelEdit();
+      setSuccessMsg('Portfolio reset to original default sketches.');
+      setTimeout(() => setSuccessMsg(''), 3000);
+    }
+  };
+
   // Handle local file upload for sketches CMS
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -317,7 +382,7 @@ export default function OwnerStudioPage() {
       return;
     }
 
-    const newSketch = {
+    const sketchData = {
       title: title.trim(),
       category,
       medium: medium.trim() || 'Graphite & Charcoal on Paper',
@@ -329,16 +394,15 @@ export default function OwnerStudioPage() {
       year: `${new Date().getFullYear()}`
     };
 
-    addArtwork(newSketch);
-    setSuccessMsg(`"${newSketch.title}" is now published live on your portfolio!`);
-
-    // Reset Form
-    setTitle('');
-    setDescription('');
-    setImageUrl('');
-    setImagePreview('');
-    setInstagramPostUrl('');
-    setError('');
+    if (editingId) {
+      updateArtwork(editingId, sketchData);
+      setSuccessMsg(`"${sketchData.title}" updated successfully!`);
+      handleCancelEdit();
+    } else {
+      addArtwork(sketchData);
+      setSuccessMsg(`"${sketchData.title}" is now published live on your portfolio!`);
+      handleCancelEdit();
+    }
 
     setTimeout(() => {
       setSuccessMsg('');
@@ -347,7 +411,7 @@ export default function OwnerStudioPage() {
 
   const handleCopyCode = () => {
     const snippet = {
-      id: `sketch-${Date.now()}`,
+      id: editingId || `sketch-${Date.now()}`,
       title: title || 'Artwork Title',
       slug: (title || 'new-sketch').toLowerCase().replace(/\s+/g, '-'),
       category,
@@ -526,7 +590,7 @@ export default function OwnerStudioPage() {
           </div>
         )}
 
-        {/* VIEW 2: Portfolio Sketches CMS (Publish & Manage) */}
+        {/* VIEW 2: Portfolio Sketches CMS (Publish, Edit & Manage) */}
         {activeStudioTab === 'artworks' && (
           <div className="space-y-12 animate-in fade-in duration-300 text-left">
             {/* Success Alert Banner */}
@@ -555,28 +619,58 @@ export default function OwnerStudioPage() {
                   FULL-PAGE CREATION STUDIO
                 </span>
                 <h1 className="font-['Bebas_Neue',sans-serif] text-4xl md:text-5xl text-white tracking-wide leading-none">
-                  Publish & Manage Sketches
+                  {editingId ? 'Edit Portfolio Sketch' : 'Publish & Manage Sketches'}
                 </h1>
                 <p className="text-sm text-slate-400 max-w-xl mt-1">
-                  Add new pencil portraits, link their Instagram posts, and preview in real-time before publishing to your live portfolio.
+                  {editingId
+                    ? 'Modify title, medium, dimensions, image, or Instagram link and click Save to apply changes live.'
+                    : 'Add new pencil portraits, link their Instagram posts, or edit existing sketches in your portfolio.'}
                 </p>
               </div>
             </div>
 
             {/* Split Screen Workspace: Form (Left) & Real-Time Card Preview (Right) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start text-left">
-              {/* Left Column: Spacious Form */}
-              <div className="lg:col-span-7 bg-[#0e0e16] border border-white/10 rounded-2xl p-6 md:p-8 shadow-xl space-y-6">
+              {/* Left Column: Form (Supports both Add & Edit) */}
+              <div
+                id="sketch-form-section"
+                className="lg:col-span-7 bg-[#0e0e16] border border-white/10 rounded-2xl p-6 md:p-8 shadow-xl space-y-6 scroll-mt-24"
+              >
                 <div className="flex items-center justify-between border-b border-white/10 pb-4">
                   <div className="flex items-center gap-2">
-                    <Plus size={18} className="text-[#c5a059]" />
-                    <h3 className="font-['Bebas_Neue',sans-serif] text-2xl text-white tracking-wide">
-                      Add New Sketch Form
-                    </h3>
+                    {editingId ? (
+                      <>
+                        <Pencil size={18} className="text-[#c5a059]" />
+                        <h3 className="font-['Bebas_Neue',sans-serif] text-2xl text-white tracking-wide">
+                          Edit Sketch: {title || 'Artwork'}
+                        </h3>
+                        <span className="bg-[#c5a059]/20 text-[#c5a059] border border-[#c5a059]/40 text-[10px] font-mono px-2 py-0.5 rounded-full uppercase ml-1">
+                          EDITING
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus size={18} className="text-[#c5a059]" />
+                        <h3 className="font-['Bebas_Neue',sans-serif] text-2xl text-white tracking-wide">
+                          Add New Sketch Form
+                        </h3>
+                      </>
+                    )}
                   </div>
-                  <span className="text-[11px] font-mono text-slate-500 uppercase">
-                    Fields marked <span className="text-rose-400">*</span> are required
-                  </span>
+
+                  {editingId ? (
+                    <button
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="text-xs text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/15 transition-colors cursor-pointer"
+                    >
+                      Cancel Edit ✕
+                    </button>
+                  ) : (
+                    <span className="text-[11px] font-mono text-slate-500 uppercase">
+                      Fields marked <span className="text-rose-400">*</span> are required
+                    </span>
+                  )}
                 </div>
 
                 {error && (
@@ -749,9 +843,28 @@ export default function OwnerStudioPage() {
                       type="submit"
                       className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#e8c985] to-[#c5a059] hover:from-[#f5dca2] hover:to-[#e8c985] text-black font-semibold text-sm py-3.5 rounded-xl shadow-xl shadow-[#c5a059]/20 transition-all duration-300 hover:-translate-y-0.5 cursor-pointer"
                     >
-                      <Plus size={18} />
-                      <span>Publish Sketch to Live Portfolio</span>
+                      {editingId ? (
+                        <>
+                          <Check size={18} />
+                          <span>Save & Update Sketch</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus size={18} />
+                          <span>Publish Sketch to Live Portfolio</span>
+                        </>
+                      )}
                     </button>
+
+                    {editingId && (
+                      <button
+                        type="button"
+                        onClick={handleCancelEdit}
+                        className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 text-xs px-5 py-3.5 rounded-xl transition-all cursor-pointer font-mono"
+                      >
+                        Cancel
+                      </button>
+                    )}
 
                     <button
                       type="button"
@@ -843,10 +956,10 @@ export default function OwnerStudioPage() {
                 {/* Live Guide Tip */}
                 <div className="p-4 bg-[#101018] border border-white/10 rounded-xl text-xs text-slate-400 space-y-1">
                   <strong className="text-slate-200 block font-['Space_Grotesk',monospace]">
-                    ✦ Instant Publishing Note
+                    ✦ Instant Publishing & Editing
                   </strong>
                   <p className="leading-relaxed">
-                    When you click &ldquo;Publish Sketch&rdquo;, it saves to your browser immediately. When you are ready to make it permanent for all users, click &ldquo;Copy Code for artworks.js&rdquo; and paste it into the project file.
+                    Changes take effect on your website immediately. To make custom additions permanent in the project source, click &ldquo;Copy Code for artworks.js&rdquo;.
                   </p>
                 </div>
               </div>
@@ -860,30 +973,47 @@ export default function OwnerStudioPage() {
                     All Portfolio Sketches ({artworks.length})
                   </h3>
                   <p className="text-xs text-slate-400 mt-1">
-                    View, inspect, and manage all active sketches in your portfolio collection.
+                    Edit, delete, inspect, and manage every sketch in your portfolio.
                   </p>
                 </div>
 
-                {/* Category Filter */}
-                <div className="flex items-center gap-2">
-                  <SlidersHorizontal size={14} className="text-[#c5a059]" />
-                  <select
-                    value={filterCat}
-                    onChange={(e) => setFilterCat(e.target.value)}
-                    className="bg-[#161622] border border-white/10 text-xs text-slate-200 rounded-lg p-2 outline-none cursor-pointer"
+                {/* Actions: Category Filter & Restore Defaults */}
+                <div className="flex items-center gap-3 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <SlidersHorizontal size={14} className="text-[#c5a059]" />
+                    <select
+                      value={filterCat}
+                      onChange={(e) => setFilterCat(e.target.value)}
+                      className="bg-[#161622] border border-white/10 text-xs text-slate-200 rounded-lg p-2 outline-none cursor-pointer"
+                    >
+                      {ARTWORK_CATEGORIES.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleResetDefaults}
+                    className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-slate-200 bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 rounded-lg font-mono transition-colors cursor-pointer"
+                    title="Restore original 8 default portfolio sketches"
                   >
-                    {ARTWORK_CATEGORIES.map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
+                    <RotateCcw size={12} />
+                    <span>Reset Defaults</span>
+                  </button>
                 </div>
               </div>
 
+              {/* Sketches Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
                 {displayedArtworks.map((art) => (
                   <div
                     key={art.id}
-                    className="bg-[#12121c] border border-white/10 hover:border-[#c5a059]/40 rounded-xl overflow-hidden p-3 flex flex-col justify-between transition-all"
+                    className={`bg-[#12121c] border rounded-xl overflow-hidden p-3 flex flex-col justify-between transition-all ${
+                      editingId === art.id
+                        ? 'border-[#c5a059] shadow-lg shadow-[#c5a059]/20 ring-1 ring-[#c5a059]'
+                        : 'border-white/10 hover:border-[#c5a059]/40'
+                    }`}
                   >
                     <div>
                       <div className="relative w-full h-44 rounded-lg overflow-hidden bg-black/60 mb-3">
@@ -896,9 +1026,9 @@ export default function OwnerStudioPage() {
                         <span className="absolute top-2 left-2 bg-black/80 text-[10px] text-[#c5a059] px-2 py-0.5 rounded-full font-mono">
                           {art.category}
                         </span>
-                        {art.isCustom && (
-                          <span className="absolute top-2 right-2 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[9px] font-mono px-1.5 py-0.5 rounded">
-                            CUSTOM
+                        {art.isFeatured && (
+                          <span className="absolute top-2 right-2 bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[9px] font-mono px-1.5 py-0.5 rounded">
+                            FEATURED
                           </span>
                         )}
                       </div>
@@ -914,7 +1044,8 @@ export default function OwnerStudioPage() {
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between border-t border-white/5 pt-2.5 mt-3">
+                    {/* Card Actions: Instagram, Edit, Delete */}
+                    <div className="flex items-center justify-between border-t border-white/5 pt-2.5 mt-3 gap-2">
                       <a
                         href={art.instagramPostUrl}
                         target="_blank"
@@ -925,16 +1056,26 @@ export default function OwnerStudioPage() {
                         <ExternalLink size={11} />
                       </a>
 
-                      {art.isCustom && (
+                      <div className="flex items-center gap-1.5">
                         <button
                           type="button"
-                          onClick={() => deleteCustomArtwork(art.id)}
-                          className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 p-1.5 rounded-md transition-colors cursor-pointer"
+                          onClick={() => handleStartEdit(art)}
+                          className="flex items-center gap-1 text-[#c5a059] hover:text-amber-200 bg-[#c5a059]/10 hover:bg-[#c5a059]/20 text-[11px] font-mono px-2 py-1 rounded-lg border border-[#c5a059]/30 transition-colors cursor-pointer"
+                          title="Edit this sketch"
+                        >
+                          <Pencil size={11} />
+                          <span>Edit</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteArtwork(art)}
+                          className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 p-1 rounded-lg border border-rose-500/20 transition-colors cursor-pointer"
                           title="Delete this sketch"
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={13} />
                         </button>
-                      )}
+                      </div>
                     </div>
                   </div>
                 ))}
