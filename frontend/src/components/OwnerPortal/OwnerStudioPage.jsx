@@ -378,8 +378,8 @@ export default function OwnerStudioPage() {
   return (
     <div className="min-h-screen bg-[#06060a] text-slate-200 flex flex-col selection:bg-[#c5a059] selection:text-black">
       {/* Top Studio Header Bar */}
-      <header className="sticky top-0 z-40 bg-[#09090f]/95 border-b border-white/10 backdrop-blur-md px-6 md:px-12 py-3.5 shadow-2xl">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-40 bg-[#09090f]/95 border-b border-white/10 backdrop-blur-md px-6 md:px-12 py-3 shadow-2xl">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
           {/* Brand Title */}
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#e8c985] to-[#c5a059] text-black flex items-center justify-center font-bold shadow-md shadow-[#c5a059]/20">
@@ -400,72 +400,63 @@ export default function OwnerStudioPage() {
             </div>
           </div>
 
-          {/* Right Status Actions */}
-          <div className="flex items-center gap-3">
-            {/* <button
+          {/* Center Tabs: Consolidated into Header */}
+          <div className="flex items-center gap-1.5 bg-[#141420] p-1 rounded-xl border border-white/10">
+            <button
               type="button"
-              onClick={closeStudio}
-              className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3.5 py-2 rounded-lg border border-white/15 transition-colors cursor-pointer"
-              title="Close Studio"
+              onClick={() => setActiveStudioTab('artworks')}
+              className={`flex items-center gap-2 py-1.5 px-3.5 rounded-lg text-xs font-semibold font-['Space_Grotesk',monospace] transition-all cursor-pointer ${
+                activeStudioTab === 'artworks'
+                  ? 'bg-gradient-to-r from-[#e8c985] to-[#c5a059] text-black shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
             >
-              <X size={15} />
-              <span>Close</span>
-            </button> */}
+              <Layers size={14} />
+              <span>Portfolio Sketches ({artworks.length})</span>
+            </button>
 
             <button
               type="button"
+              onClick={() => {
+                setActiveStudioTab('inquiries');
+                loadInquiries();
+              }}
+              className={`flex items-center gap-2 py-1.5 px-3.5 rounded-lg text-xs font-semibold font-['Space_Grotesk',monospace] transition-all cursor-pointer relative ${
+                activeStudioTab === 'inquiries'
+                  ? 'bg-gradient-to-r from-[#e8c985] to-[#c5a059] text-black shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Inbox size={14} />
+              <span>Commission Orders</span>
+              {newInquiryCount > 0 ? (
+                <span className="bg-rose-500 text-white font-bold text-[9px] px-1.5 py-0.2 rounded-full animate-pulse">
+                  {newInquiryCount} NEW
+                </span>
+              ) : (
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                  activeStudioTab === 'inquiries' ? 'bg-black/20 text-black' : 'bg-white/10 text-slate-400'
+                }`}>
+                  {inquiries.length}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Right: Logout */}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
               onClick={logoutOwner}
-              className="flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-3 py-2 rounded-lg border border-rose-500/20 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-3.5 py-2 rounded-lg border border-rose-500/20 transition-colors cursor-pointer"
               title="Logout from Studio"
             >
               <LogOut size={14} />
-              <span className="hidden md:inline">Logout</span>
+              <span>Logout</span>
             </button>
           </div>
         </div>
       </header>
-
-      {/* Main Studio Navigation Tab Bar */}
-      <nav aria-label="Studio Navigation" className="border-b border-white/10 bg-[#0a0a12] px-6 md:px-12 sticky top-[61px] z-30">
-        <div className="max-w-7xl mx-auto flex gap-3 overflow-x-auto">
-          <button
-            type="button"
-            onClick={() => setActiveStudioTab('artworks')}
-            className={`flex items-center gap-2 py-3.5 px-5 text-xs font-semibold font-['Space_Grotesk',monospace] border-b-2 transition-all cursor-pointer whitespace-nowrap ${
-              activeStudioTab === 'artworks'
-                ? 'border-[#c5a059] text-white bg-white/5'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Layers size={15} className={activeStudioTab === 'artworks' ? 'text-[#c5a059]' : ''} />
-            <span>Portfolio Sketches ({artworks.length})</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setActiveStudioTab('inquiries');
-              loadInquiries();
-            }}
-            className={`flex items-center gap-2 py-3.5 px-5 text-xs font-semibold font-['Space_Grotesk',monospace] border-b-2 transition-all cursor-pointer whitespace-nowrap ${
-              activeStudioTab === 'inquiries'
-                ? 'border-[#c5a059] text-white bg-white/5'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Inbox size={15} className={activeStudioTab === 'inquiries' ? 'text-[#c5a059]' : ''} />
-            <span>Commission Orders</span>
-            {newInquiryCount > 0 && (
-              <span className="bg-[#c5a059] text-black font-bold text-[10px] px-2 py-0.5 rounded-full animate-pulse">
-                {newInquiryCount} NEW
-              </span>
-            )}
-            <span className="bg-white/10 text-slate-300 text-[10px] px-2 py-0.5 rounded-full font-mono">
-              {inquiries.length}
-            </span>
-          </button>
-        </div>
-      </nav>
 
       {/* Main Studio Workspace Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-6 md:px-12 py-8 space-y-10">
