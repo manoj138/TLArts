@@ -300,14 +300,7 @@ export default function HeroScroll() {
 
         {/* Bottom HUD: Telemetry, Scroll Indicator & Progress Bar */}
         <footer className="hero-bottom-hud">
-          <div className="hud-left">
-            <div className="frame-telemetry">
-              <span>FRAME: [{String(displayFrame).padStart(2, '0')} / {String(TOTAL_FRAMES).padStart(2, '0')}]</span>
-              <span>•</span>
-              <span>TLARTS GALLERY</span>
-            </div>
-            <div className="hud-location">TUSHAR LOHAR • @ARTIST_TUSHAR_02</div>
-          </div>
+          <div className="hud-left" />
 
           <div className="hud-center">
             <div className="scroll-prompt">

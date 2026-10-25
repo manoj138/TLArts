@@ -23,7 +23,7 @@ export default function ArtistIntroduction() {
           <div className="lg:col-span-5 relative group">
             <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-black/80 bg-[#111118]">
               <img
-                src="https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=900&q=85"
+                src="/tushar_photo/Tushar_photo.jpg"
                 alt="Realistic pencil sketch by Tushar Lohar"
                 className="w-full h-[480px] object-cover contrast-105 group-hover:scale-105 transition-transform duration-700 block"
                 loading="lazy"
