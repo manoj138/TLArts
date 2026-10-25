@@ -379,18 +379,8 @@ export default function OwnerStudioPage() {
     <div className="min-h-screen bg-[#06060a] text-slate-200 flex flex-col selection:bg-[#c5a059] selection:text-black">
       {/* Top Studio Header Bar */}
       <header className="sticky top-0 z-40 bg-[#09090f]/95 border-b border-white/10 backdrop-blur-md px-6 md:px-12 py-3.5 shadow-2xl">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
-          {/* Back to Website Button */}
-          <button
-            type="button"
-            onClick={closeStudio}
-            className="flex items-center gap-2 bg-white/5 hover:bg-[#c5a059]/15 border border-white/15 hover:border-[#c5a059]/50 text-slate-200 hover:text-white px-4 py-2 rounded-lg text-xs md:text-sm font-['Space_Grotesk',monospace] transition-all duration-200 cursor-pointer group"
-          >
-            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            <span>← Return to Portfolio Website</span>
-          </button>
-
-          {/* Center Brand Title */}
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          {/* Brand Title */}
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#e8c985] to-[#c5a059] text-black flex items-center justify-center font-bold shadow-md shadow-[#c5a059]/20">
               <ShieldCheck size={20} />
@@ -412,14 +402,15 @@ export default function OwnerStudioPage() {
 
           {/* Right Status Actions */}
           <div className="flex items-center gap-3">
-            <button
+            {/* <button
               type="button"
               onClick={closeStudio}
-              className="bg-gradient-to-r from-[#e8c985] to-[#c5a059] hover:from-[#f5dca2] hover:to-[#e8c985] text-black font-semibold text-xs px-4 py-2 rounded-lg shadow-lg shadow-[#c5a059]/20 transition-all cursor-pointer flex items-center gap-1.5"
+              className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3.5 py-2 rounded-lg border border-white/15 transition-colors cursor-pointer"
+              title="Close Studio"
             >
-              <Eye size={14} />
-              <span>Live Website</span>
-            </button>
+              <X size={15} />
+              <span>Close</span>
+            </button> */}
 
             <button
               type="button"
