@@ -2,6 +2,9 @@ require('dotenv').config();
 
 const express = require('express');
 const app = express();
+const {connectionDb}= require('./config/db.js');
+
+connectionDb()
 
 app.get('/', (req, res) => {
     res.send('Server is running');
