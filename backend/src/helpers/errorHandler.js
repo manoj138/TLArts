@@ -1,12 +1,12 @@
 //helpers/errorHandler.js
 
-/*** fromats Mongoose Error into a flat object  */
+/*** formats Mongoose Error into a flat object  */
 
 const formatMongooseError = (res, error) =>{
     let errors = {};
 
     //validation Error
-    if(error.name = "validationError"){
+    if(error.name = "ValidationError"){
         Object.keys(error.errors).forEach((key)=>{
             errors[key]=error.errors[key].message;
         });
@@ -47,7 +47,7 @@ const handle404 = (res, message = "resource not found")=>{
 
 /*** Handles 404 Not Found Errors */
 
-const handle401 = (res, message = "Session Expired, please login agian..!")=>{
+const handle401 = (res, message = "Session expired, please login again..!")=>{
     return res.status(401).json({
         status:false,
         errors:{
