@@ -6,7 +6,7 @@ const formatMongooseError = (res, error) =>{
     let errors = {};
 
     //validation Error
-    if(error.name = "ValidationError"){
+    if(error.name === "ValidationError"){
         Object.keys(error.errors).forEach((key)=>{
             errors[key]=error.errors[key].message;
         });
@@ -29,7 +29,11 @@ const formatMongooseError = (res, error) =>{
             errors
         });
     }
-     
+    
+    if (error.name === "CastError") {
+    return handle404(res, `Resource not found with id of ${error.value}`);
+}
+
     return handle500(res, error);
 };
 
@@ -45,7 +49,7 @@ const handle404 = (res, message = "resource not found")=>{
     });
 };
 
-/*** Handles 404 Not Found Errors */
+/*** Handles 401 Not Found Errors */
 
 const handle401 = (res, message = "Session expired, please login again..!")=>{
     return res.status(401).json({
@@ -73,12 +77,16 @@ const handle500 = (res, error)=>{
     console.log("Internal Server Error:" , error);
     
 
+
     return res.status(500).json({
+        
         status:false,
         errors:{
             server:error?.message || "Internal Server Error"
         },
     });
+
+   
 };
 
 module.exports={

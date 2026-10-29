@@ -1,4 +1,4 @@
-const bcrypt= require("bcrypt");
+const bcrypt= require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 /*
@@ -23,7 +23,7 @@ const comparePassword = async(password, hashedPassword)=>{
  */
 
 const generateToken = (payload)=>{
-    const expiresIn = process.env.JWT_EXPIRE;
+    const expiresIn = process.env.JWT_EXPIRE || "7d";
 
     return jwt.sign(
         payload,
