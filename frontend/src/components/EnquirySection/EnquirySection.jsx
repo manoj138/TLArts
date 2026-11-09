@@ -13,6 +13,7 @@ import {
 import InstagramIcon from '../common/InstagramIcon';
 import { ARTIST_INFO } from '../../data/artworks';
 import { saveInquiry } from '../../utils/inquiryStorage';
+import { inquiryApi } from '../../api/apiClient';
 
 export default function EnquirySection() {
   const [formData, setFormData] = useState({
@@ -94,15 +95,36 @@ export default function EnquirySection() {
     setIsSubmitting(true);
 
     try {
-      // Save directly to IndexedDB without Base64!
-      await saveInquiry({
-        name: formData.name,
-        contact: formData.contact,
-        sketchType: formData.sketchType,
-        size: formData.size,
-        message: formData.message,
-        imageFile: selectedFile // Raw binary File object
-      });
+      // 1. Submit to Live Backend API with FormData
+      try {
+        const payload = new FormData();
+        payload.append('name', formData.name.trim());
+        payload.append('contact', formData.contact.trim());
+        payload.append('sketchType', formData.sketchType);
+        payload.append('size', formData.size);
+        payload.append('message', formData.message ? formData.message.trim() : '');
+        if (selectedFile) {
+          payload.append('referencePhoto', selectedFile);
+        }
+
+        await inquiryApi.create(payload);
+      } catch (apiErr) {
+        console.warn('Backend inquiry submission note (saving to local IndexedDB backup):', apiErr.message);
+      }
+
+      // 2. Also save to browser IndexedDB as reliable client backup
+      try {
+        await saveInquiry({
+          name: formData.name,
+          contact: formData.contact,
+          sketchType: formData.sketchType,
+          size: formData.size,
+          message: formData.message,
+          imageFile: selectedFile // Raw binary File object
+        });
+      } catch (idbErr) {
+        console.warn('Local IndexedDB backup notice:', idbErr.message);
+      }
 
       setSubmitted(true);
     } catch (err) {

@@ -1,50 +1,44 @@
-
 const fs = require("fs");
 const path = require("path");
 
 // Delete file safely
-function safeUnlink(filePath){
-    try{
-                // Check if file exists
-        if(fs.existsSync(filePath)){
+function safeUnlink(filePath) {
+    try {
+        if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
-            console.log("Deleted", filePath);
-            
+            console.log("Deleted file:", filePath);
         }
-    }catch(e){
-        console.warn("failed to delete", filePath);
-    
+    } catch (e) {
+        console.warn("Failed to delete file:", filePath, e.message);
     }
 }
 
 // Find uploaded files and delete them
-function deleteUploadedFiles(data){
-      // Stop if no data
-    if(!data) return;
+function deleteUploadedFiles(data) {
+    if (!data) return;
 
-    // Check if data is an object
-    if(typeof data === "object"){
-        for(const key in data){
-             // Check string values
-            if (typeof data[key] === "string"){
-                     // Check upload file path
-                if(data[key].startsWith("uploads/")){
-                    // Create full file path
-                    const filePath=path.join(
-                        process.cwd(),
-                        "public",
-                        data[key]
-                    )
-                    // Delete file
-                    safeUnlink(filePath)
+    if (typeof data === "string") {
+        const cleanPath = data.startsWith("/") ? data.slice(1) : data;
+        if (cleanPath.startsWith("uploads/")) {
+            const filePath = path.join(process.cwd(), "public", cleanPath);
+            safeUnlink(filePath);
+        }
+        return;
+    }
+
+    if (typeof data === "object") {
+        for (const key in data) {
+            if (typeof data[key] === "string") {
+                const cleanPath = data[key].startsWith("/") ? data[key].slice(1) : data[key];
+                if (cleanPath.startsWith("uploads/")) {
+                    const filePath = path.join(process.cwd(), "public", cleanPath);
+                    safeUnlink(filePath);
                 }
-                // Check nested objects
-            }else if(typeof data[key] === "object"){
-                // Search inside nested object
-  deleteUploadedFiles(data[key]);
+            } else if (typeof data[key] === "object") {
+                deleteUploadedFiles(data[key]);
             }
         }
     }
 }
 
-module.exports = {deleteUploadedFiles}
+module.exports = { deleteUploadedFiles, safeUnlink };

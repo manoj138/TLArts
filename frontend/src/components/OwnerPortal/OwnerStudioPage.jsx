@@ -25,29 +25,31 @@ import InstagramIcon from '../common/InstagramIcon';
 import { useArtworks } from '../../context/ArtworkContext';
 import { ARTWORK_CATEGORIES } from '../../data/artworks';
 import { getInquiries, updateInquiryStatus, deleteInquiry } from '../../utils/inquiryStorage';
+import { inquiryApi, getFullImageUrl } from '../../api/apiClient';
 
 // Child component for each inquiry card to safely handle Object URL lifecycle (Zero Base64!)
 function InquiryCard({ inquiry, onStatusChange, onDelete, onImageClick }) {
   const [photoUrl, setPhotoUrl] = useState(null);
 
   useEffect(() => {
-    if (inquiry.imageFile instanceof Blob) {
+    if (inquiry.referencePhotoUrl) {
+      setPhotoUrl(getFullImageUrl(inquiry.referencePhotoUrl));
+    } else if (inquiry.imageFile instanceof Blob) {
       const url = URL.createObjectURL(inquiry.imageFile);
       setPhotoUrl(url);
       return () => URL.revokeObjectURL(url);
     }
-  }, [inquiry.imageFile]);
+  }, [inquiry.imageFile, inquiry.referencePhotoUrl]);
 
   const handleDownload = () => {
-    if (!inquiry.imageFile) return;
-    const url = URL.createObjectURL(inquiry.imageFile);
+    if (!photoUrl) return;
     const a = document.createElement('a');
-    a.href = url;
+    a.href = photoUrl;
+    a.target = '_blank';
     a.download = inquiry.fileName || `${inquiry.name.replace(/\s+/g, '_')}_reference.jpg`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 100);
   };
 
   const cleanPhone = inquiry.contact.replace(/[^\d+]/g, '');
@@ -242,6 +244,7 @@ export default function OwnerStudioPage() {
   const [description, setDescription] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [imagePreview, setImagePreview] = useState('');
+  const [artworkFile, setArtworkFile] = useState(null);
   const [instagramPostUrl, setInstagramPostUrl] = useState('');
   const [isFeatured, setIsFeatured] = useState(true);
 
@@ -250,14 +253,31 @@ export default function OwnerStudioPage() {
   const [copiedCode, setCopiedCode] = useState(false);
   const [filterCat, setFilterCat] = useState('All');
 
-  // Load inquiries from IndexedDB on mount and on tab switch
+  // Load inquiries from Live Backend API with IndexedDB fallback
   const loadInquiries = async () => {
     setInquiriesLoading(true);
     try {
+      // 1. Try loading from Live Backend API first
+      try {
+        const liveRecords = await inquiryApi.getAll();
+        if (Array.isArray(liveRecords) && liveRecords.length > 0) {
+          const formatted = liveRecords.map((inq) => ({
+            ...inq,
+            id: inq._id || inq.id,
+            date: inq.createdAt || inq.date || new Date().toISOString()
+          }));
+          setInquiries(formatted);
+          return;
+        }
+      } catch (apiErr) {
+        console.warn('Backend inquiry load notice:', apiErr.message);
+      }
+
+      // 2. Fallback to native IndexedDB
       const records = await getInquiries();
       setInquiries(records);
     } catch (e) {
-      console.error('Failed to load inquiries from IndexedDB:', e);
+      console.error('Failed to load inquiries:', e);
     } finally {
       setInquiriesLoading(false);
     }
@@ -269,7 +289,11 @@ export default function OwnerStudioPage() {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      await updateInquiryStatus(id, newStatus);
+      if (/^[0-9a-fA-F]{24}$/.test(id)) {
+        await inquiryApi.updateStatus(id, newStatus);
+      } else {
+        await updateInquiryStatus(id, newStatus);
+      }
       setInquiries((prev) =>
         prev.map((inq) => (inq.id === id ? { ...inq, status: newStatus } : inq))
       );
@@ -281,7 +305,11 @@ export default function OwnerStudioPage() {
   const handleDeleteInquiry = async (id) => {
     if (window.confirm('Are you sure you want to delete this commission request?')) {
       try {
-        await deleteInquiry(id);
+        if (/^[0-9a-fA-F]{24}$/.test(id)) {
+          await inquiryApi.delete(id);
+        } else {
+          await deleteInquiry(id);
+        }
         setInquiries((prev) => prev.filter((inq) => inq.id !== id));
       } catch (e) {
         console.error('Failed to delete inquiry:', e);
@@ -320,6 +348,7 @@ export default function OwnerStudioPage() {
     setDescription('');
     setImageUrl('');
     setImagePreview('');
+    setArtworkFile(null);
     setInstagramPostUrl('');
     setIsFeatured(true);
     setError('');
@@ -351,11 +380,12 @@ export default function OwnerStudioPage() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setError('Image file is too large (max 5MB).');
+      if (file.size > 20 * 1024 * 1024) {
+        setError('Image file is too large (max 20MB).');
         return;
       }
       setError('');
+      setArtworkFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
@@ -369,6 +399,7 @@ export default function OwnerStudioPage() {
     const url = e.target.value;
     setImageUrl(url);
     setImagePreview(url);
+    setArtworkFile(null);
   };
 
   const handlePublish = (e) => {
@@ -395,12 +426,14 @@ export default function OwnerStudioPage() {
     };
 
     if (editingId) {
-      updateArtwork(editingId, sketchData);
+      updateArtwork(editingId, sketchData, artworkFile);
       setSuccessMsg(`"${sketchData.title}" updated successfully!`);
+      setArtworkFile(null);
       handleCancelEdit();
     } else {
-      addArtwork(sketchData);
+      addArtwork(sketchData, artworkFile);
       setSuccessMsg(`"${sketchData.title}" is now published live on your portfolio!`);
+      setArtworkFile(null);
       handleCancelEdit();
     }
 

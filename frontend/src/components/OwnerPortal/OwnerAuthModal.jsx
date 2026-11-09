@@ -8,10 +8,11 @@ export default function OwnerAuthModal() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [shake, setShake] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   if (!isAuthModalOpen) return null;
 
-  const handleVerify = (e) => {
+  const handleVerify = async (e) => {
     e.preventDefault();
     if (!passcode.trim()) {
       setError('Please enter the owner passcode.');
@@ -19,13 +20,21 @@ export default function OwnerAuthModal() {
       return;
     }
 
-    const result = verifyPasscode(passcode);
-    if (result.success) {
-      setPasscode('');
-      setError('');
-    } else {
-      setError(result.error);
+    setIsVerifying(true);
+    try {
+      const result = await verifyPasscode(passcode);
+      if (result && result.success) {
+        setPasscode('');
+        setError('');
+      } else {
+        setError(result?.error || 'Incorrect Passcode. Access Denied.');
+        triggerShake();
+      }
+    } catch (err) {
+      setError('Authentication failed. Please try again.');
       triggerShake();
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -120,9 +129,10 @@ export default function OwnerAuthModal() {
             </button>
             <button
               type="submit"
-              className="flex-1 bg-gradient-to-r from-[#e8c985] to-[#c5a059] hover:from-[#f5dca2] hover:to-[#e8c985] text-black font-semibold text-xs py-2.5 rounded-lg shadow-lg shadow-[#c5a059]/20 transition-all cursor-pointer"
+              disabled={isVerifying}
+              className="flex-1 bg-gradient-to-r from-[#e8c985] to-[#c5a059] hover:from-[#f5dca2] hover:to-[#e8c985] text-black font-semibold text-xs py-2.5 rounded-lg shadow-lg shadow-[#c5a059]/20 transition-all cursor-pointer disabled:opacity-60"
             >
-              Unlock Studio
+              {isVerifying ? 'Verifying...' : 'Unlock Studio'}
             </button>
           </div>
         </form>
