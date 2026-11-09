@@ -8,10 +8,6 @@ export default function Navbar() {
   const { openStudio } = useArtworks();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-
-  const audioCtxRef = useRef(null);
-  const synthNodesRef = useRef([]);
 
   // 4-click secret detector for owner authentication
   const clickCountRef = useRef(0);
@@ -50,57 +46,6 @@ export default function Navbar() {
 
   const closeMenu = () => setMobileMenuOpen(false);
 
-  // Studio ambient synth audio toggle (Web Audio API)
-  const toggleAudio = () => {
-    if (isAudioPlaying) {
-      if (audioCtxRef.current) {
-        audioCtxRef.current.suspend();
-      }
-      setIsAudioPlaying(false);
-    } else {
-      try {
-        if (!audioCtxRef.current) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          const ctx = new AudioContext();
-          audioCtxRef.current = ctx;
-
-          // Warm cinematic chord (F minor 9th)
-          const frequencies = [87.31, 130.81, 174.61, 261.63, 311.13];
-          const masterGain = ctx.createGain();
-          masterGain.gain.setValueAtTime(0.05, ctx.currentTime);
-
-          const filter = ctx.createBiquadFilter();
-          filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(450, ctx.currentTime);
-
-          masterGain.connect(filter);
-          filter.connect(ctx.destination);
-
-          const nodes = frequencies.map((freq) => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(freq, ctx.currentTime);
-            osc.detune.setValueAtTime((Math.random() - 0.5) * 15, ctx.currentTime);
-
-            gain.gain.setValueAtTime(0.2, ctx.currentTime);
-            osc.connect(gain);
-            gain.connect(masterGain);
-            osc.start();
-            return osc;
-          });
-
-          synthNodesRef.current = nodes;
-        } else {
-          audioCtxRef.current.resume();
-        }
-        setIsAudioPlaying(true);
-      } catch (e) {
-        console.error('Audio could not be initialized:', e);
-      }
-    }
-  };
-
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -125,14 +70,8 @@ export default function Navbar() {
           </span>
         </a>
 
-        {/* Desktop Nav Links */}
+        {/* Desktop Nav Links (Ordered according to homepage section flow) */}
         <div className="hidden lg:flex items-center gap-7 text-sm font-medium text-slate-300">
-          <a
-            href="#about"
-            className="hover:text-white transition-colors duration-200 relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-[#c5a059] hover:after:w-full after:transition-all after:duration-300"
-          >
-            About Artist
-          </a>
           <a
             href="#videos"
             className="hover:text-white transition-colors duration-200 relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-[#c5a059] hover:after:w-full after:transition-all after:duration-300"
@@ -144,6 +83,12 @@ export default function Navbar() {
             className="hover:text-white transition-colors duration-200 relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-[#c5a059] hover:after:w-full after:transition-all after:duration-300"
           >
             Sketch Gallery
+          </a>
+          <a
+            href="#about"
+            className="hover:text-white transition-colors duration-200 relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-[#c5a059] hover:after:w-full after:transition-all after:duration-300"
+          >
+            About Artist
           </a>
           <a
             href="#process"
@@ -161,21 +106,6 @@ export default function Navbar() {
 
         {/* Right CTA Actions */}
         <div className="hidden sm:flex items-center gap-3">
-          {/* Ambient Sound Toggle */}
-          <button
-            type="button"
-            className="flex items-center gap-2 bg-[#161622]/80 hover:bg-[#c5a059]/15 border border-white/15 hover:border-[#c5a059]/40 text-slate-300 hover:text-white px-3.5 py-1.5 rounded-full font-['Space_Grotesk',monospace] text-xs tracking-wider transition-all duration-300 hover:-translate-y-0.5 cursor-pointer"
-            onClick={toggleAudio}
-            title="Toggle Studio Ambient Synth"
-          >
-            <div className="flex items-end gap-0.5 h-2.5">
-              <span className={`w-0.5 bg-[#c5a059] rounded-sm ${isAudioPlaying ? 'h-full animate-pulse' : 'h-1'}`} />
-              <span className={`w-0.5 bg-[#c5a059] rounded-sm ${isAudioPlaying ? 'h-2 animate-bounce' : 'h-1.5'}`} />
-              <span className={`w-0.5 bg-[#c5a059] rounded-sm ${isAudioPlaying ? 'h-full animate-pulse delay-75' : 'h-1'}`} />
-            </div>
-            <span>{isAudioPlaying ? 'SOUND: ON' : 'SOUND: OFF'}</span>
-          </button>
-
           {/* Instagram Link */}
           <a
             href={ARTIST_INFO.instagramUrl}
@@ -213,13 +143,6 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div className="lg:hidden flex flex-col gap-3 bg-[#08080c] border-b border-white/10 px-6 py-6 transition-all">
           <a
-            href="#about"
-            className="text-base text-slate-200 hover:text-[#c5a059] py-2 border-b border-white/5"
-            onClick={closeMenu}
-          >
-            About Artist
-          </a>
-          <a
             href="#videos"
             className="text-base text-slate-200 hover:text-[#c5a059] py-2 border-b border-white/5"
             onClick={closeMenu}
@@ -232,6 +155,13 @@ export default function Navbar() {
             onClick={closeMenu}
           >
             Complete Gallery
+          </a>
+          <a
+            href="#about"
+            className="text-base text-slate-200 hover:text-[#c5a059] py-2 border-b border-white/5"
+            onClick={closeMenu}
+          >
+            About Artist
           </a>
           <a
             href="#process"
@@ -249,14 +179,6 @@ export default function Navbar() {
           </a>
 
           <div className="flex flex-col gap-2.5 mt-2">
-            <button
-              type="button"
-              className="flex items-center justify-center gap-2 bg-[#161622] border border-white/10 text-slate-300 py-2.5 rounded-lg text-xs font-mono"
-              onClick={toggleAudio}
-            >
-              <span>{isAudioPlaying ? 'STUDIO SOUND: ON' : 'STUDIO SOUND: OFF'}</span>
-            </button>
-
             <a
               href={ARTIST_INFO.instagramUrl}
               target="_blank"
