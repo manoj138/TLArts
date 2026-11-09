@@ -42,14 +42,14 @@ function AppContent() {
 
       {/* Main Portfolio Sections */}
       <main id="main-portfolio" className="main-content">
-        {/* 1. Artist Introduction & Philosophy */}
-        <ArtistIntroduction />
-
-        {/* 2. Drawing Timelapses & Reels Video Showcase (Uploaded by Admin) */}
+        {/* 1. Drawing Timelapses & Reels Video Showcase (Uploaded by Admin) */}
         <FeaturedVideos />
 
-        {/* 3. Complete Sketch Gallery with Search & Category Filters */}
+        {/* 2. Complete Sketch Gallery with Search & Category Filters */}
         <SketchGallery onSelectArtwork={handleSelectArtwork} />
+
+        {/* 3. Artist Introduction & Philosophy */}
+        <ArtistIntroduction />
 
         {/* 4. The 5-Stage Creative Sketching Process */}
         <CreativeProcess />
