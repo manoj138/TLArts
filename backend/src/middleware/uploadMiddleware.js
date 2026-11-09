@@ -42,12 +42,54 @@ const createUploader = (subfolder = "general") => {
     });
 };
 
+/**
+ * Configure Multer Storage for Video uploads (MP4, WebM, MOV, etc.)
+ */
+const createVideoUploader = (subfolder = "videos") => {
+    const uploadDir = path.join(process.cwd(), "public", "uploads", subfolder);
+
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    const storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+            cb(null, uploadDir);
+        },
+        filename: function (req, file, cb) {
+            const ext = path.extname(file.originalname).toLowerCase();
+            const cleanName = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9]/g, "_");
+            const uniqueSuffix = `${Date.now()}_${Math.round(Math.random() * 1e6)}`;
+            cb(null, `${cleanName}_${uniqueSuffix}${ext}`);
+        }
+    });
+
+    const fileFilter = (req, file, cb) => {
+        const allowedExtensions = /mp4|webm|mov|mkv|m4v|ogg/;
+        const ext = path.extname(file.originalname).toLowerCase().replace(".", "");
+        const mime = file.mimetype.toLowerCase();
+
+        if (allowedExtensions.test(ext) || mime.startsWith("video/")) {
+            return cb(null, true);
+        }
+        cb(new Error("Only video files (MP4, WebM, MOV, MKV, M4V) are allowed!"), false);
+    };
+
+    return multer({
+        storage: storage,
+        limits: { fileSize: 100 * 1024 * 1024 }, // 100 MB limit
+        fileFilter: fileFilter
+    });
+};
+
 const uploadArtwork = createUploader("artworks");
 const uploadInquiry = createUploader("inquiries");
+const uploadVideo = createVideoUploader("videos");
 
 module.exports = {
     uploadArtwork,
     uploadInquiry,
-    createUploader
+    uploadVideo,
+    createUploader,
+    createVideoUploader
 };
-

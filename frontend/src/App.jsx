@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Navbar from './components/Navbar/Navbar';
 import HeroScroll from './components/HeroScroll/HeroScroll';
 import ArtistIntroduction from './components/ArtistIntroduction/ArtistIntroduction';
-import FeaturedSketches from './components/FeaturedSketches/FeaturedSketches';
+import FeaturedVideos from './components/FeaturedVideos/FeaturedVideos';
 import SketchGallery from './components/SketchGallery/SketchGallery';
 import CreativeProcess from './components/CreativeProcess/CreativeProcess';
 import InstagramSection from './components/InstagramSection/InstagramSection';
@@ -45,8 +45,8 @@ function AppContent() {
         {/* 1. Artist Introduction & Philosophy */}
         <ArtistIntroduction />
 
-        {/* 2. Curated Featured Sketches */}
-        <FeaturedSketches onSelectArtwork={handleSelectArtwork} />
+        {/* 2. Drawing Timelapses & Reels Video Showcase (Uploaded by Admin) */}
+        <FeaturedVideos />
 
         {/* 3. Complete Sketch Gallery with Search & Category Filters */}
         <SketchGallery onSelectArtwork={handleSelectArtwork} />

@@ -92,5 +92,29 @@ export const inquiryApi = {
   }
 };
 
+// Studio Video / Reel endpoints
+export const videoApi = {
+  getAll: async () => {
+    const response = await apiClient.get('/videos');
+    return response.data.data;
+  },
+  create: async (formData) => {
+    const response = await apiClient.post('/videos', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data.data;
+  },
+  update: async (id, formData) => {
+    const response = await apiClient.put(`/videos/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data.data;
+  },
+  delete: async (id) => {
+    const response = await apiClient.delete(`/videos/${id}`);
+    return response.data;
+  }
+};
+
 export default apiClient;
 

@@ -19,7 +19,10 @@ import {
   X,
   Maximize2,
   Pencil,
-  RotateCcw
+  RotateCcw,
+  Video as VideoIcon,
+  Film,
+  Play
 } from 'lucide-react';
 import InstagramIcon from '../common/InstagramIcon';
 import { useArtworks } from '../../context/ArtworkContext';
@@ -217,16 +220,32 @@ function InquiryCard({ inquiry, onStatusChange, onDelete, onImageClick }) {
 export default function OwnerStudioPage() {
   const {
     artworks,
+    videos = [],
     addArtwork,
     updateArtwork,
     deleteArtwork,
     toggleSoldStatus,
+    addVideo,
+    deleteVideo,
+    refreshVideos,
     resetToDefaultArtworks,
     logoutOwner
   } = useArtworks();
 
   // Active Main Studio Tab
-  const [activeStudioTab, setActiveStudioTab] = useState('artworks'); // 'artworks' | 'inquiries'
+  const [activeStudioTab, setActiveStudioTab] = useState('artworks'); // 'artworks' | 'videos' | 'inquiries'
+
+  // Video Management States
+  const [videoTitle, setVideoTitle] = useState('');
+  const [videoCategory, setVideoCategory] = useState('Process Timelapse');
+  const [videoDuration, setVideoDuration] = useState('');
+  const [videoDescription, setVideoDescription] = useState('');
+  const [videoUrlInput, setVideoUrlInput] = useState('');
+  const [selectedVideoFile, setSelectedVideoFile] = useState(null);
+  const [videoLocalPreview, setVideoLocalPreview] = useState('');
+  const [videoInstaUrl, setVideoInstaUrl] = useState('');
+  const [videoPublishing, setVideoPublishing] = useState(false);
+  const [videoErrorMsg, setVideoErrorMsg] = useState('');
 
   // Commission Inquiries State (Stored in Native IndexedDB)
   const [inquiries, setInquiries] = useState([]);
@@ -479,6 +498,69 @@ export default function OwnerStudioPage() {
     (art) => filterCat === 'All' || art.category === filterCat
   );
 
+  // Video upload handlers
+  const handleVideoFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 100 * 1024 * 1024) {
+        setVideoErrorMsg('Video file is too large (maximum allowed size: 100MB).');
+        return;
+      }
+      setVideoErrorMsg('');
+      setSelectedVideoFile(file);
+      const objUrl = URL.createObjectURL(file);
+      setVideoLocalPreview(objUrl);
+    }
+  };
+
+  const handlePublishVideo = async (e) => {
+    e.preventDefault();
+    if (!videoTitle.trim()) {
+      setVideoErrorMsg('Video Title is required.');
+      return;
+    }
+    if (!selectedVideoFile && !videoUrlInput.trim()) {
+      setVideoErrorMsg('Please upload an MP4 video file or provide a video URL.');
+      return;
+    }
+
+    setVideoPublishing(true);
+    setVideoErrorMsg('');
+    try {
+      await addVideo({
+        title: videoTitle.trim(),
+        category: videoCategory,
+        duration: videoDuration.trim() || '0:45',
+        description: videoDescription.trim(),
+        videoUrl: videoUrlInput.trim(),
+        instagramReelUrl: videoInstaUrl.trim()
+      }, selectedVideoFile);
+
+      setSuccessMsg(`"${videoTitle}" video published live on website!`);
+      setVideoTitle('');
+      setVideoDuration('');
+      setVideoDescription('');
+      setVideoUrlInput('');
+      setSelectedVideoFile(null);
+      if (videoLocalPreview) URL.revokeObjectURL(videoLocalPreview);
+      setVideoLocalPreview('');
+      setVideoInstaUrl('');
+    } catch (err) {
+      setVideoErrorMsg('Failed to publish video: ' + err.message);
+    } finally {
+      setVideoPublishing(false);
+      setTimeout(() => setSuccessMsg(''), 4000);
+    }
+  };
+
+  const handleDeleteVideo = async (id, title) => {
+    if (window.confirm(`Are you sure you want to permanently delete video "${title}"?`)) {
+      await deleteVideo(id);
+      setSuccessMsg(`"${title}" video has been deleted.`);
+      setTimeout(() => setSuccessMsg(''), 3000);
+    }
+  };
+
   const displayedInquiries = inquiries.filter(
     (inq) => inquiryStatusFilter === 'All' || inq.status === inquiryStatusFilter
   );
@@ -522,7 +604,23 @@ export default function OwnerStudioPage() {
               }`}
             >
               <Layers size={14} />
-              <span>Portfolio Sketches ({artworks.length})</span>
+              <span>Sketches ({artworks.length})</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActiveStudioTab('videos');
+                refreshVideos();
+              }}
+              className={`flex items-center gap-2 py-1.5 px-3.5 rounded-lg text-xs font-semibold font-['Space_Grotesk',monospace] transition-all cursor-pointer ${
+                activeStudioTab === 'videos'
+                  ? 'bg-gradient-to-r from-[#e8c985] to-[#c5a059] text-black shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <VideoIcon size={14} />
+              <span>Studio Videos ({videos.length})</span>
             </button>
 
             <button
@@ -633,6 +731,315 @@ export default function OwnerStudioPage() {
                 </p>
               </div>
             )}
+          </div>
+        )}
+
+        {/* VIEW: Studio Videos & Timelapse Reels CMS */}
+        {activeStudioTab === 'videos' && (
+          <div className="space-y-12 animate-in fade-in duration-300 text-left">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
+              <div>
+                <span className="font-['Space_Grotesk',monospace] text-xs text-[#c5a059] tracking-widest uppercase block mb-1">
+                  STUDIO IN MOTION
+                </span>
+                <h1 className="font-['Bebas_Neue',sans-serif] text-4xl md:text-5xl text-white tracking-wide leading-none">
+                  Studio Videos & Timelapse Reels ({videos.length})
+                </h1>
+                <p className="text-xs md:text-sm text-slate-400 max-w-xl mt-1">
+                  Upload drawing timelapses, speed sketches, and reels. Uploaded videos appear automatically on the homepage showcase.
+                </p>
+              </div>
+            </div>
+
+            {/* Video Error Message */}
+            {videoErrorMsg && (
+              <div className="p-4 bg-rose-950/70 border border-rose-500/40 rounded-xl text-xs md:text-sm text-rose-300 flex items-center justify-between shadow-xl">
+                <span>{videoErrorMsg}</span>
+                <button
+                  type="button"
+                  onClick={() => setVideoErrorMsg('')}
+                  className="text-rose-400 hover:text-white font-mono text-xs cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {/* 2-Column Workspace: Form & Live Player Preview */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              {/* Left Column: Video Upload Form */}
+              <div className="lg:col-span-7 bg-[#0e0e16] border border-white/10 rounded-2xl p-6 md:p-8 space-y-6">
+                <div className="flex items-center gap-2 border-b border-white/10 pb-4">
+                  <Film size={20} className="text-[#c5a059]" />
+                  <h3 className="font-['Bebas_Neue',sans-serif] text-2xl text-white tracking-wide">
+                    Upload New Studio Video
+                  </h3>
+                </div>
+
+                <form onSubmit={handlePublishVideo} className="space-y-5">
+                  {/* Video Title */}
+                  <div>
+                    <label className="block font-['Space_Grotesk',monospace] text-xs uppercase tracking-wider text-slate-300 mb-1.5">
+                      Video Title <span className="text-rose-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={videoTitle}
+                      onChange={(e) => setVideoTitle(e.target.value)}
+                      placeholder="e.g. Hyper-Realistic Eye Shading Timelapse"
+                      className="w-full bg-[#141420] border border-white/10 focus:border-[#c5a059] rounded-xl p-3 text-sm text-white placeholder-slate-500 outline-none transition-all"
+                    />
+                  </div>
+
+                  {/* Category & Duration */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block font-['Space_Grotesk',monospace] text-xs uppercase tracking-wider text-slate-300 mb-1.5">
+                        Category
+                      </label>
+                      <select
+                        value={videoCategory}
+                        onChange={(e) => setVideoCategory(e.target.value)}
+                        className="w-full bg-[#141420] border border-white/10 focus:border-[#c5a059] rounded-xl p-3 text-sm text-white outline-none cursor-pointer"
+                      >
+                        <option value="Process Timelapse">Process Timelapse</option>
+                        <option value="Speed Drawing">Speed Drawing</option>
+                        <option value="Studio Reel">Studio Reel</option>
+                        <option value="Commission Reveal">Commission Reveal</option>
+                        <option value="Micro-Texture Study">Micro-Texture Study</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block font-['Space_Grotesk',monospace] text-xs uppercase tracking-wider text-slate-300 mb-1.5">
+                        Duration (e.g. 0:45)
+                      </label>
+                      <input
+                        type="text"
+                        value={videoDuration}
+                        onChange={(e) => setVideoDuration(e.target.value)}
+                        placeholder="e.g. 0:45 or 1:12"
+                        className="w-full bg-[#141420] border border-white/10 focus:border-[#c5a059] rounded-xl p-3 text-sm text-white placeholder-slate-500 outline-none transition-all font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Video Description */}
+                  <div>
+                    <label className="block font-['Space_Grotesk',monospace] text-xs uppercase tracking-wider text-slate-300 mb-1.5">
+                      Description & Process Details
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={videoDescription}
+                      onChange={(e) => setVideoDescription(e.target.value)}
+                      placeholder="Brief note on pencils, blending technique, or hours spent..."
+                      className="w-full bg-[#141420] border border-white/10 focus:border-[#c5a059] rounded-xl p-3 text-sm text-white placeholder-slate-500 outline-none transition-all resize-y"
+                    />
+                  </div>
+
+                  {/* Video Source Selection (File or URL) */}
+                  <div className="bg-[#12121c] border border-white/10 rounded-xl p-5 space-y-4">
+                    <label className="block font-['Space_Grotesk',monospace] text-xs uppercase tracking-wider text-[#c5a059]">
+                      Video Source <span className="text-rose-400">*</span>
+                    </label>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                      {/* Option A: Local File Upload */}
+                      <div>
+                        <label className="flex flex-col items-center justify-center border-2 border-dashed border-white/15 hover:border-[#c5a059]/50 rounded-xl p-5 cursor-pointer bg-[#181826] transition-all group">
+                          <Upload size={24} className="text-[#c5a059] group-hover:scale-110 transition-transform mb-1.5" />
+                          <span className="text-xs text-white font-medium text-center">
+                            {selectedVideoFile ? selectedVideoFile.name : 'Upload MP4 / WebM File'}
+                          </span>
+                          <span className="text-[10px] text-slate-500 mt-1">MP4, WebM up to 100MB</span>
+                          <input
+                            type="file"
+                            accept="video/*"
+                            onChange={handleVideoFileSelect}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+
+                      {/* Option B: Direct URL */}
+                      <div className="space-y-1.5">
+                        <span className="text-[11px] font-mono text-slate-400 block">
+                          OR Paste Video URL:
+                        </span>
+                        <div className="relative">
+                          <LinkIcon size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                          <input
+                            type="url"
+                            value={videoUrlInput}
+                            onChange={(e) => {
+                              setVideoUrlInput(e.target.value);
+                              setSelectedVideoFile(null);
+                            }}
+                            placeholder="https://assets.mixkit.co/...mp4"
+                            className="w-full bg-[#181826] border border-white/10 focus:border-[#c5a059] rounded-xl py-2.5 pl-10 pr-3 text-xs text-white placeholder-slate-500 outline-none"
+                          />
+                        </div>
+                        <span className="text-[10px] text-slate-500 block">
+                          Direct video links or CDN URLs supported.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Instagram Reel Link */}
+                  <div>
+                    <label className="block font-['Space_Grotesk',monospace] text-xs uppercase tracking-wider text-slate-300 mb-1.5">
+                      Instagram Reel URL (Optional)
+                    </label>
+                    <div className="relative">
+                      <InstagramIcon size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                      <input
+                        type="url"
+                        value={videoInstaUrl}
+                        onChange={(e) => setVideoInstaUrl(e.target.value)}
+                        placeholder="https://www.instagram.com/reel/C-example123/"
+                        className="w-full bg-[#141420] border border-white/10 focus:border-[#c5a059] rounded-xl py-3 pl-10 pr-3 text-xs md:text-sm text-white placeholder-slate-500 outline-none transition-all font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    disabled={videoPublishing}
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#e8c985] to-[#c5a059] hover:from-[#f5dca2] hover:to-[#e8c985] text-black font-semibold text-sm py-3.5 rounded-xl shadow-xl shadow-[#c5a059]/20 transition-all duration-300 cursor-pointer disabled:opacity-60"
+                  >
+                    <Film size={18} />
+                    <span>{videoPublishing ? 'Uploading & Processing Video...' : 'Publish Video to Homepage'}</span>
+                  </button>
+                </form>
+              </div>
+
+              {/* Right Column: Live Video Player Preview */}
+              <div className="lg:col-span-5 bg-[#0e0e16] border border-white/10 rounded-2xl p-6 md:p-8 space-y-4">
+                <span className="font-['Space_Grotesk',monospace] text-xs text-[#c5a059] tracking-wider uppercase block">
+                  ✦ Live Player Preview
+                </span>
+
+                <div className="relative aspect-[9/16] max-h-[460px] w-full rounded-2xl overflow-hidden bg-black border border-white/10 flex items-center justify-center mx-auto shadow-2xl">
+                  {videoLocalPreview || videoUrlInput ? (
+                    <video
+                      key={videoLocalPreview || videoUrlInput}
+                      src={videoLocalPreview || videoUrlInput}
+                      controls
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="text-center p-6 text-slate-500 space-y-2">
+                      <VideoIcon size={44} className="mx-auto opacity-30 text-[#c5a059]" />
+                      <span className="text-xs font-mono block">Video Preview will appear here</span>
+                      <span className="text-[10px] text-slate-600 block">Select a file on the left</span>
+                    </div>
+                  )}
+
+                  <div className="absolute top-3 left-3 bg-black/80 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[10px] font-mono text-[#c5a059] border border-white/10">
+                    {videoCategory}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-['Bebas_Neue',sans-serif] text-2xl text-white tracking-wide truncate">
+                    {videoTitle || 'Your Video Title'}
+                  </h4>
+                  <p className="text-xs text-slate-400 line-clamp-2 mt-1">
+                    {videoDescription || 'Video description will appear on the homepage card.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Section: All Published Videos Grid */}
+            <div className="bg-[#0e0e16] border border-white/10 rounded-2xl p-6 md:p-8 space-y-6">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div>
+                  <h3 className="font-['Bebas_Neue',sans-serif] text-3xl text-white tracking-wide leading-none">
+                    Published Videos ({videos.length})
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Manage and play all drawing process videos featured on your site.
+                  </p>
+                </div>
+              </div>
+
+              {videos.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  {videos.map((vid) => (
+                    <div
+                      key={vid.id}
+                      className="bg-[#12121c] border border-white/10 hover:border-[#c5a059]/40 rounded-2xl overflow-hidden p-4 flex flex-col justify-between transition-all shadow-xl group"
+                    >
+                      <div className="space-y-3">
+                        <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-black">
+                          <video
+                            src={vid.videoUrl}
+                            preload="metadata"
+                            controls
+                            playsInline
+                            className="w-full h-full object-cover"
+                          />
+                          <span className="absolute top-2 left-2 bg-black/80 text-[10px] text-[#c5a059] px-2 py-0.5 rounded-full font-mono">
+                            {vid.category}
+                          </span>
+                          {vid.duration && (
+                            <span className="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-mono px-1.5 py-0.5 rounded">
+                              {vid.duration}
+                            </span>
+                          )}
+                        </div>
+
+                        <div>
+                          <h4 className="font-['Bebas_Neue',sans-serif] text-xl text-white tracking-wide line-clamp-1">
+                            {vid.title}
+                          </h4>
+                          <p className="text-xs text-slate-400 line-clamp-2 mt-0.5">
+                            {vid.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between border-t border-white/5 pt-3 mt-4">
+                        {vid.instagramReelUrl ? (
+                          <a
+                            href={vid.instagramReelUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-slate-400 hover:text-[#c5a059] text-xs font-mono flex items-center gap-1"
+                          >
+                            <span>Instagram Reel</span>
+                            <ExternalLink size={12} />
+                          </a>
+                        ) : (
+                          <span className="text-[11px] font-mono text-slate-500">Local Studio Video</span>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteVideo(vid.id, vid.title)}
+                          className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 p-1.5 rounded-lg border border-rose-500/20 transition-colors cursor-pointer"
+                          title="Delete this video"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16 bg-[#12121c] border border-dashed border-white/10 rounded-xl p-8 space-y-2">
+                  <VideoIcon size={36} className="mx-auto text-[#c5a059] opacity-40" />
+                  <h4 className="font-['Bebas_Neue',sans-serif] text-2xl text-white">No Videos Uploaded Yet</h4>
+                  <p className="text-xs text-slate-400">Use the form above to upload your first drawing timelapse video!</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
 

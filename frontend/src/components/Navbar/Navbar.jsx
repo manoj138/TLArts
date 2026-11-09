@@ -134,10 +134,10 @@ export default function Navbar() {
             About Artist
           </a>
           <a
-            href="#featured"
+            href="#videos"
             className="hover:text-white transition-colors duration-200 relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-[#c5a059] hover:after:w-full after:transition-all after:duration-300"
           >
-            Featured
+            Studio Reels
           </a>
           <a
             href="#gallery"
@@ -220,11 +220,11 @@ export default function Navbar() {
             About Artist
           </a>
           <a
-            href="#featured"
+            href="#videos"
             className="text-base text-slate-200 hover:text-[#c5a059] py-2 border-b border-white/5"
             onClick={closeMenu}
           >
-            Featured Sketches
+            Studio Reels & Timelapses
           </a>
           <a
             href="#gallery"

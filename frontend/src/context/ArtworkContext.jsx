@@ -1,20 +1,61 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { ARTWORKS_DATA } from '../data/artworks';
-import { authApi, artworkApi, getFullImageUrl } from '../api/apiClient';
+import { DEFAULT_VIDEOS } from '../data/videos';
+import { authApi, artworkApi, videoApi, getFullImageUrl } from '../api/apiClient';
 
 const ArtworkContext = createContext();
 
 const OWNER_PASSCODE = 'TLARTS@02';
 const STORAGE_KEY = 'tlarts_all_artworks_v1';
+const VIDEO_STORAGE_KEY = 'tlarts_all_videos_v1';
 const AUTH_KEY = 'tlarts_owner_auth';
 const TOKEN_KEY = 'tlarts_admin_token';
 
 export function ArtworkProvider({ children }) {
   const [artworks, setArtworks] = useState(ARTWORKS_DATA);
+  const [videos, setVideos] = useState(DEFAULT_VIDEOS);
   const [isOwner, setIsOwner] = useState(false);
   const [currentView, setCurrentView] = useState('portfolio'); // 'portfolio' | 'studio'
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [videosLoading, setVideosLoading] = useState(false);
+
+  // Fetch videos from live backend API with fallback
+  const refreshVideos = useCallback(async () => {
+    try {
+      setVideosLoading(true);
+      const liveVideos = await videoApi.getAll();
+      if (Array.isArray(liveVideos) && liveVideos.length > 0) {
+        const formatted = liveVideos.map((v) => ({
+          ...v,
+          id: v._id || v.id,
+          videoUrl: getFullImageUrl(v.videoUrl),
+          thumbnailUrl: getFullImageUrl(v.thumbnailUrl)
+        }));
+        setVideos(formatted);
+        localStorage.setItem(VIDEO_STORAGE_KEY, JSON.stringify(formatted));
+        return;
+      }
+    } catch (e) {
+      console.warn('Backend videos fetch notice:', e.message);
+    } finally {
+      setVideosLoading(false);
+    }
+
+    try {
+      const saved = localStorage.getItem(VIDEO_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setVideos(parsed);
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('Error parsing local videos:', err);
+    }
+    setVideos(DEFAULT_VIDEOS);
+  }, []);
 
   // Fetch artworks from live backend API or fallback to curated default collection
   const refreshArtworks = useCallback(async () => {
@@ -70,7 +111,8 @@ export function ArtworkProvider({ children }) {
     }
 
     refreshArtworks();
-  }, [refreshArtworks]);
+    refreshVideos();
+  }, [refreshArtworks, refreshVideos]);
 
   // Login verification via Backend API with offline fallback
   const verifyPasscode = async (enteredPasscode) => {
@@ -242,6 +284,66 @@ export function ArtworkProvider({ children }) {
     return await updateArtwork(id, { isSold: !currentSoldStatus });
   };
 
+  // Add new studio timelapse / reel video
+  const addVideo = async (newVid, videoFile = null) => {
+    try {
+      const formData = new FormData();
+      formData.append('title', newVid.title || 'Studio Timelapse');
+      if (newVid.category) formData.append('category', newVid.category);
+      if (newVid.duration) formData.append('duration', newVid.duration);
+      if (newVid.description) formData.append('description', newVid.description);
+      if (newVid.instagramReelUrl) formData.append('instagramReelUrl', newVid.instagramReelUrl);
+
+      if (videoFile instanceof File || videoFile instanceof Blob) {
+        formData.append('video', videoFile);
+      } else if (newVid.videoUrl) {
+        formData.append('videoUrl', newVid.videoUrl);
+      }
+
+      const created = await videoApi.create(formData);
+      if (created) {
+        const formatted = {
+          ...created,
+          id: created._id || created.id,
+          videoUrl: getFullImageUrl(created.videoUrl),
+          thumbnailUrl: getFullImageUrl(created.thumbnailUrl)
+        };
+        setVideos((prev) => [formatted, ...prev]);
+        return formatted;
+      }
+    } catch (e) {
+      console.warn('Backend video create failed, adding locally:', e.message);
+    }
+
+    const vidEntry = {
+      id: `vid-${Date.now()}`,
+      ...newVid
+    };
+    setVideos((prev) => {
+      const updated = [vidEntry, ...prev];
+      localStorage.setItem(VIDEO_STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
+    return vidEntry;
+  };
+
+  // Delete studio video
+  const deleteVideo = async (id) => {
+    try {
+      if (/^[0-9a-fA-F]{24}$/.test(id)) {
+        await videoApi.delete(id);
+      }
+    } catch (e) {
+      console.warn('Backend video delete failed, removing locally:', e.message);
+    }
+
+    setVideos((prev) => {
+      const updated = prev.filter((v) => v.id !== id);
+      localStorage.setItem(VIDEO_STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   // Reset to original factory portfolio
   const resetToDefaultArtworks = () => {
     setArtworks(ARTWORKS_DATA);
@@ -252,6 +354,11 @@ export function ArtworkProvider({ children }) {
     <ArtworkContext.Provider
       value={{
         artworks,
+        videos,
+        videosLoading,
+        refreshVideos,
+        addVideo,
+        deleteVideo,
         isOwner,
         currentView,
         setCurrentView,

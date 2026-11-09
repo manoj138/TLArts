@@ -33,6 +33,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 app.use('/api/admin', require('./src/routes/adminRoutes'));
 app.use('/api/artworks', require('./src/routes/artworkRoutes'));
 app.use('/api/inquiries', require('./src/routes/inquiryRoutes'));
+app.use('/api/videos', require('./src/routes/videoRoutes'));
 
 // 5. Root Health Check
 app.get('/', (req, res) => {
