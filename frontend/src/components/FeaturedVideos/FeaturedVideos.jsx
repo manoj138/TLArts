@@ -33,8 +33,8 @@ function VideoCard({ video, onOpenLightbox }) {
       onClick={() => onOpenLightbox(video)}
     >
       <div>
-        {/* Video Container */}
-        <div className="relative w-full aspect-[9/16] sm:aspect-video md:aspect-[4/5] lg:aspect-[9/16] max-h-[440px] overflow-hidden bg-black flex items-center justify-center">
+        {/* Video Container (Vertical Reel 9:16 Format for 4-5 items per row) */}
+        <div className="relative w-full aspect-[9/16] overflow-hidden bg-black flex items-center justify-center">
           <video
             ref={videoRef}
             src={video.videoUrl}
@@ -49,16 +49,16 @@ function VideoCard({ video, onOpenLightbox }) {
           />
 
           {/* Gradient Shadow Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/40 pointer-events-none" />
 
           {/* Category Badge */}
-          <div className="absolute top-3 left-3 bg-black/80 border border-white/15 backdrop-blur-md font-['Space_Grotesk',monospace] text-[10px] tracking-wider text-[#c5a059] px-3 py-1 rounded-full pointer-events-none">
+          <div className="absolute top-2.5 left-2.5 bg-black/85 border border-white/15 backdrop-blur-md font-['Space_Grotesk',monospace] text-[9px] sm:text-[10px] tracking-wider text-[#c5a059] px-2.5 py-0.5 rounded-full pointer-events-none truncate max-w-[75%]">
             {video.category || 'Timelapse'}
           </div>
 
           {/* Duration Pill */}
           {video.duration && (
-            <div className="absolute top-3 right-3 bg-black/80 border border-white/10 text-white font-mono text-[10px] px-2 py-0.5 rounded-md pointer-events-none">
+            <div className="absolute top-2.5 right-2.5 bg-black/80 border border-white/10 text-white font-mono text-[9px] px-1.5 py-0.5 rounded pointer-events-none">
               {video.duration}
             </div>
           )}
@@ -68,24 +68,24 @@ function VideoCard({ video, onOpenLightbox }) {
             <button
               type="button"
               onClick={togglePlay}
-              className="absolute inset-0 m-auto w-14 h-14 rounded-full bg-black/60 hover:bg-[#c5a059] border border-[#c5a059]/40 hover:border-[#c5a059] text-white hover:text-black flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-xl cursor-pointer group/btn"
+              className="absolute inset-0 m-auto w-12 h-12 rounded-full bg-black/60 hover:bg-[#c5a059] border border-[#c5a059]/40 hover:border-[#c5a059] text-white hover:text-black flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-xl cursor-pointer group/btn"
               title="Play Video"
               aria-label="Play video"
             >
-              <Play size={22} className="ml-1 fill-current" />
+              <Play size={18} className="ml-1 fill-current" />
             </button>
           )}
 
           {/* Bottom Video Quick Action Controls */}
-          <div className="absolute bottom-3 right-3 flex items-center gap-2">
+          <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5">
             <button
               type="button"
               onClick={toggleMute}
-              className="w-8 h-8 rounded-full bg-black/70 hover:bg-[#c5a059] border border-white/15 hover:border-[#c5a059] text-white hover:text-black flex items-center justify-center transition-all cursor-pointer shadow-md"
+              className="w-7 h-7 rounded-full bg-black/75 hover:bg-[#c5a059] border border-white/15 hover:border-[#c5a059] text-white hover:text-black flex items-center justify-center transition-all cursor-pointer shadow-md"
               title={isMuted ? 'Unmute Video' : 'Mute Video'}
               aria-label="Toggle mute"
             >
-              {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+              {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
             </button>
 
             <button
@@ -94,36 +94,36 @@ function VideoCard({ video, onOpenLightbox }) {
                 e.stopPropagation();
                 onOpenLightbox(video);
               }}
-              className="w-8 h-8 rounded-full bg-black/70 hover:bg-[#c5a059] border border-white/15 hover:border-[#c5a059] text-white hover:text-black flex items-center justify-center transition-all cursor-pointer shadow-md"
+              className="w-7 h-7 rounded-full bg-black/75 hover:bg-[#c5a059] border border-white/15 hover:border-[#c5a059] text-white hover:text-black flex items-center justify-center transition-all cursor-pointer shadow-md"
               title="Full Screen View"
               aria-label="Full screen view"
             >
-              <Maximize2 size={13} />
+              <Maximize2 size={11} />
             </button>
           </div>
         </div>
 
         {/* Video Card Meta & Details */}
-        <div className="p-4 sm:p-5">
-          <h3 className="font-['Bebas_Neue',sans-serif] text-xl sm:text-2xl tracking-wide text-white mb-1.5 leading-snug line-clamp-1 group-hover:text-[#c5a059] transition-colors">
+        <div className="p-3 sm:p-3.5">
+          <h3 className="font-['Bebas_Neue',sans-serif] text-lg sm:text-xl tracking-wide text-white mb-1 leading-snug line-clamp-1 group-hover:text-[#c5a059] transition-colors">
             {video.title}
           </h3>
-          <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+          <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
             {video.description || 'Watch the detailed graphite blending and artistic process in real-time.'}
           </p>
         </div>
       </div>
 
       {/* Card Footer: Watch Reel & Lightbox Trigger */}
-      <div className="px-4 pb-4 sm:px-5 sm:pb-5">
-        <div className="flex items-center justify-between border-t border-white/5 pt-3">
+      <div className="px-3 pb-3 sm:px-3.5 sm:pb-3.5">
+        <div className="flex items-center justify-between border-t border-white/5 pt-2">
           <button
             type="button"
-            className="font-['Space_Grotesk',monospace] text-[11px] sm:text-xs font-semibold text-[#c5a059] group-hover:text-amber-200 flex items-center gap-1.5 cursor-pointer transition-colors"
+            className="font-['Space_Grotesk',monospace] text-[10px] sm:text-[11px] font-semibold text-[#c5a059] group-hover:text-amber-200 flex items-center gap-1 cursor-pointer transition-colors"
             onClick={() => onOpenLightbox(video)}
           >
-            <span>Watch Fullscreen</span>
-            <Maximize2 size={12} />
+            <span>Play</span>
+            <Maximize2 size={10} />
           </button>
 
           {video.instagramReelUrl && (
@@ -131,12 +131,12 @@ function VideoCard({ video, onOpenLightbox }) {
               href={video.instagramReelUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-400 hover:text-[#c5a059] bg-white/5 hover:bg-[#c5a059]/15 border border-white/10 hover:border-[#c5a059] p-1.5 rounded-full transition-all"
+              className="text-slate-400 hover:text-[#c5a059] bg-white/5 hover:bg-[#c5a059]/15 border border-white/10 hover:border-[#c5a059] p-1 rounded-full transition-all"
               onClick={(e) => e.stopPropagation()}
               title="Watch on Instagram"
               aria-label="Watch on Instagram"
             >
-              <InstagramIcon size={13} />
+              <InstagramIcon size={12} />
             </a>
           )}
         </div>
@@ -145,19 +145,19 @@ function VideoCard({ video, onOpenLightbox }) {
   );
 }
 
-// Main Video Showcase Component
+// Main Video Showcase Component (4 or 5 videos in desktop row)
 export default function FeaturedVideos() {
   const { videos = [] } = useArtworks();
   const [activeLightboxVideo, setActiveLightboxVideo] = useState(null);
 
   return (
-    <section id="videos" className="py-20 sm:py-28 px-4 sm:px-6 md:px-12 bg-[#09090e] border-t border-white/5 relative overflow-hidden">
+    <section id="videos" className="py-20 sm:py-28 px-4 sm:px-6 md:px-10 bg-[#09090e] border-t border-white/5 relative overflow-hidden">
       {/* Background Subtle Ambience Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[#c5a059]/5 blur-[120px] pointer-events-none rounded-full" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[320px] bg-[#c5a059]/5 blur-[130px] pointer-events-none rounded-full" />
 
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-[1440px] mx-auto relative z-10">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-12 sm:mb-16 text-left">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-10 sm:mb-14 text-left">
           <div>
             <span className="inline-flex items-center gap-2 font-['Space_Grotesk',monospace] text-xs tracking-widest text-[#c5a059] bg-[#c5a059]/10 border border-[#c5a059]/30 px-4 py-1.5 rounded-full mb-3 uppercase">
               <Film size={12} />
@@ -172,9 +172,9 @@ export default function FeaturedVideos() {
           </p>
         </div>
 
-        {/* Videos Grid */}
+        {/* 4 to 5 Videos in Row Grid for Desktop (2 on mobile, 3 on tablet, 4 on lg, 5 on xl) */}
         {videos.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5">
             {videos.map((vid) => (
               <VideoCard
                 key={vid.id}
@@ -260,4 +260,3 @@ export default function FeaturedVideos() {
     </section>
   );
 }
-
