@@ -12,8 +12,15 @@ export default function SketchGallery({ onSelectArtwork }) {
   // Filter artworks based on category and search query
   const filteredArtworks = useMemo(() => {
     return artworks.filter((item) => {
-      const matchesCategory =
-        selectedCategory === 'All' || item.category === selectedCategory;
+      let matchesCategory = false;
+      if (selectedCategory === 'All') {
+        matchesCategory = true;
+      } else if (selectedCategory === 'Available for Sale') {
+        matchesCategory = item.isForSale === true;
+      } else {
+        matchesCategory = item.category === selectedCategory;
+      }
+
       const matchesSearch =
         item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -127,6 +134,18 @@ export default function SketchGallery({ onSelectArtwork }) {
                     <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-black/85 border border-white/10 backdrop-blur-md font-['Space_Grotesk',monospace] text-[8px] sm:text-[10px] tracking-wider text-[#c5a059] px-2 sm:px-2.5 py-0.5 rounded-full truncate max-w-[85%]">
                       {art.category}
                     </div>
+                    {art.isForSale && (
+                      <div
+                        className={`absolute bottom-2 right-2 sm:bottom-3 sm:right-3 backdrop-blur-md px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full font-mono text-[9px] sm:text-xs font-bold border shadow-md flex items-center gap-1 ${
+                          art.isSold
+                            ? 'bg-rose-950/80 text-rose-300 border-rose-500/40'
+                            : 'bg-black/85 text-[#c5a059] border-[#c5a059]/50'
+                        }`}
+                      >
+                        <span>₹{(art.price || 0).toLocaleString('en-IN')}</span>
+                        {art.isSold && <span className="text-[8px] sm:text-[9px] uppercase tracking-wider text-rose-400 font-semibold">• SOLD</span>}
+                      </div>
+                    )}
                   </div>
 
                   <div className="p-3 sm:p-5">

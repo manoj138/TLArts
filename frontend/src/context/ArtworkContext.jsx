@@ -141,6 +141,9 @@ export function ArtworkProvider({ children }) {
       if (newArt.description) formData.append('description', newArt.description);
       if (newArt.instagramPostUrl) formData.append('instagramPostUrl', newArt.instagramPostUrl);
       if (typeof newArt.isFeatured !== 'undefined') formData.append('isFeatured', newArt.isFeatured);
+      if (typeof newArt.isForSale !== 'undefined') formData.append('isForSale', newArt.isForSale);
+      if (typeof newArt.price !== 'undefined') formData.append('price', newArt.price);
+      if (typeof newArt.isSold !== 'undefined') formData.append('isSold', newArt.isSold);
 
       if (imageFile instanceof File || imageFile instanceof Blob) {
         formData.append('image', imageFile);
@@ -234,6 +237,11 @@ export function ArtworkProvider({ children }) {
     });
   };
 
+  // Quick toggle Sold Out status
+  const toggleSoldStatus = async (id, currentSoldStatus) => {
+    return await updateArtwork(id, { isSold: !currentSoldStatus });
+  };
+
   // Reset to original factory portfolio
   const resetToDefaultArtworks = () => {
     setArtworks(ARTWORKS_DATA);
@@ -258,6 +266,7 @@ export function ArtworkProvider({ children }) {
         addArtwork,
         updateArtwork,
         deleteArtwork,
+        toggleSoldStatus,
         deleteCustomArtwork: deleteArtwork,
         resetToDefaultArtworks
       }}

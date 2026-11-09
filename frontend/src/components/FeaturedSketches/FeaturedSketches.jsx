@@ -47,6 +47,18 @@ export default function FeaturedSketches({ onSelectArtwork }) {
                   <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-black/85 border border-white/15 backdrop-blur-md font-['Space_Grotesk',monospace] text-[8px] sm:text-[11px] tracking-wider text-[#c5a059] px-2 sm:px-3 py-0.5 sm:py-1 rounded-full truncate max-w-[85%]">
                     {art.category}
                   </div>
+                  {art.isForSale && (
+                    <div
+                      className={`absolute bottom-2 right-2 sm:bottom-4 sm:right-4 backdrop-blur-md px-2.5 sm:px-3 py-1 rounded-full font-mono text-[9px] sm:text-xs font-bold border shadow-lg flex items-center gap-1.5 ${
+                        art.isSold
+                          ? 'bg-rose-950/80 text-rose-300 border-rose-500/40'
+                          : 'bg-black/90 text-[#c5a059] border-[#c5a059]/60'
+                      }`}
+                    >
+                      <span>₹{(art.price || 0).toLocaleString('en-IN')}</span>
+                      {art.isSold && <span className="text-[8px] sm:text-[9px] uppercase tracking-wider text-rose-400 font-semibold">• SOLD</span>}
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-3 sm:p-6 flex flex-col">

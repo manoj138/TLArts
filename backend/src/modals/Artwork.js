@@ -48,6 +48,18 @@ const artworkSchema = new mongoose.Schema(
         isFeatured: {
             type: Boolean,
             default: false
+        },
+        isForSale: {
+            type: Boolean,
+            default: false
+        },
+        price: {
+            type: Number,
+            default: 0
+        },
+        isSold: {
+            type: Boolean,
+            default: false
         }
     },
     {

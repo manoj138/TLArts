@@ -220,6 +220,7 @@ export default function OwnerStudioPage() {
     addArtwork,
     updateArtwork,
     deleteArtwork,
+    toggleSoldStatus,
     resetToDefaultArtworks,
     logoutOwner
   } = useArtworks();
@@ -247,6 +248,9 @@ export default function OwnerStudioPage() {
   const [artworkFile, setArtworkFile] = useState(null);
   const [instagramPostUrl, setInstagramPostUrl] = useState('');
   const [isFeatured, setIsFeatured] = useState(true);
+  const [isForSale, setIsForSale] = useState(false);
+  const [price, setPrice] = useState('');
+  const [isSold, setIsSold] = useState(false);
 
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -329,6 +333,9 @@ export default function OwnerStudioPage() {
     setImagePreview(art.imageUrl || '');
     setInstagramPostUrl(art.instagramPostUrl || '');
     setIsFeatured(art.isFeatured ?? true);
+    setIsForSale(art.isForSale ?? false);
+    setPrice(art.price ? art.price.toString() : '');
+    setIsSold(art.isSold ?? false);
     setError('');
 
     // Smooth scroll up to form
@@ -351,6 +358,9 @@ export default function OwnerStudioPage() {
     setArtworkFile(null);
     setInstagramPostUrl('');
     setIsFeatured(true);
+    setIsForSale(false);
+    setPrice('');
+    setIsSold(false);
     setError('');
   };
 
@@ -422,6 +432,9 @@ export default function OwnerStudioPage() {
       imageUrl: imageUrl.trim(),
       instagramPostUrl: instagramPostUrl.trim() || 'https://www.instagram.com/artist_tushar_02/',
       isFeatured,
+      isForSale,
+      price: isForSale && price ? Number(price) : 0,
+      isSold: isForSale ? isSold : false,
       year: `${new Date().getFullYear()}`
     };
 
@@ -870,6 +883,84 @@ export default function OwnerStudioPage() {
                     />
                   </div>
 
+                  {/* Selling & Pricing Configuration */}
+                  <div className="bg-[#12121c] border border-white/10 rounded-xl p-5 space-y-4">
+                    <div className="flex items-center justify-between pb-3 border-b border-white/5">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-['Space_Grotesk',monospace] text-xs font-semibold text-white block">
+                            Available for Sale (Shop / Store)
+                          </span>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#c5a059]/20 text-[#c5a059] border border-[#c5a059]/40 font-bold">
+                            COMMERCE
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-slate-400 block mt-0.5">
+                          Allow collectors and art enthusiasts to purchase this original hand-drawn artwork.
+                        </span>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={isForSale}
+                        onChange={(e) => setIsForSale(e.target.checked)}
+                        className="w-5 h-5 rounded border-white/20 text-[#c5a059] focus:ring-[#c5a059] bg-[#1a1a28] cursor-pointer"
+                      />
+                    </div>
+
+                    {isForSale && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1 animate-in fade-in duration-200">
+                        <div>
+                          <label className="block font-['Space_Grotesk',monospace] text-xs uppercase tracking-wider text-slate-300 mb-1.5">
+                            Original Sketch Price (₹ INR) <span className="text-rose-400">*</span>
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#c5a059] font-bold text-sm">
+                              ₹
+                            </span>
+                            <input
+                              type="number"
+                              min="0"
+                              value={price}
+                              onChange={(e) => setPrice(e.target.value)}
+                              placeholder="e.g. 3499"
+                              className="w-full bg-[#181826] border border-white/10 focus:border-[#c5a059] rounded-xl py-3 pl-8 pr-3 text-sm text-white placeholder-slate-500 outline-none transition-all font-mono"
+                            />
+                          </div>
+                          <span className="text-[10px] text-slate-500 block mt-1">
+                            Set price in Indian Rupees (INR) for this original piece.
+                          </span>
+                        </div>
+
+                        <div>
+                          <label className="block font-['Space_Grotesk',monospace] text-xs uppercase tracking-wider text-slate-300 mb-1.5">
+                            Availability Status
+                          </label>
+                          <div className="flex items-center justify-between p-3 bg-[#181826] border border-white/10 rounded-xl mt-0.5">
+                            <div>
+                              <span className="text-xs text-white font-medium block">
+                                {isSold ? '🔴 Marked as Sold Out' : '🟢 Available for Purchase'}
+                              </span>
+                              <span className="text-[10px] text-slate-400">
+                                {isSold ? 'Shows "Sold Out" to visitors' : 'Shows "Buy Original" WhatsApp checkout'}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setIsSold(!isSold)}
+                              className={`text-xs px-3 py-1.5 rounded-lg font-mono font-medium border transition-all cursor-pointer ${
+                                isSold
+                                  ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 hover:bg-rose-500/30'
+                                  : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30'
+                              }`}
+                            >
+                              {isSold ? 'Mark Available' : 'Mark Sold'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   {/* Action Buttons */}
                   <div className="flex flex-col sm:flex-row gap-4 pt-2">
                     <button
@@ -954,6 +1045,15 @@ export default function OwnerStudioPage() {
                     {isFeatured && (
                       <div className="absolute top-4 right-4 bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-mono px-2 py-0.5 rounded-full">
                         FEATURED
+                      </div>
+                    )}
+                    {isForSale && (
+                      <div className={`absolute bottom-4 left-4 border text-[11px] font-mono font-bold px-3 py-1 rounded-full backdrop-blur-md shadow-lg ${
+                        isSold
+                          ? 'bg-rose-950/80 border-rose-500/50 text-rose-300'
+                          : 'bg-black/90 border-[#c5a059] text-[#c5a059]'
+                      }`}>
+                        ₹{price || 0} {isSold ? '• SOLD OUT' : '• FOR SALE'}
                       </div>
                     )}
                   </div>
@@ -1064,6 +1164,17 @@ export default function OwnerStudioPage() {
                             FEATURED
                           </span>
                         )}
+                        {art.isForSale && (
+                          <span
+                            className={`absolute bottom-2 left-2 text-[9px] font-mono px-2 py-0.5 rounded-full font-bold shadow ${
+                              art.isSold
+                                ? 'bg-rose-500/80 text-white'
+                                : 'bg-[#c5a059] text-black'
+                            }`}
+                          >
+                            ₹{art.price || 0} {art.isSold ? '• SOLD' : '• FOR SALE'}
+                          </span>
+                        )}
                       </div>
 
                       <h4 className="font-['Bebas_Neue',sans-serif] text-xl text-white tracking-wide truncate">
@@ -1077,17 +1188,33 @@ export default function OwnerStudioPage() {
                       </span>
                     </div>
 
-                    {/* Card Actions: Instagram, Edit, Delete */}
-                    <div className="flex items-center justify-between border-t border-white/5 pt-2.5 mt-3 gap-2">
-                      <a
-                        href={art.instagramPostUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-slate-400 hover:text-[#c5a059] text-[11px] font-mono flex items-center gap-1"
-                      >
-                        <span>Instagram</span>
-                        <ExternalLink size={11} />
-                      </a>
+                    {/* Card Actions: Instagram, Toggle Sold, Edit, Delete */}
+                    <div className="flex items-center justify-between border-t border-white/5 pt-2.5 mt-3 gap-1.5 flex-wrap">
+                      <div className="flex items-center gap-1.5">
+                        <a
+                          href={art.instagramPostUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-slate-400 hover:text-[#c5a059] text-[11px] font-mono flex items-center gap-0.5"
+                        >
+                          <span>IG</span>
+                          <ExternalLink size={10} />
+                        </a>
+                        {art.isForSale && (
+                          <button
+                            type="button"
+                            onClick={() => toggleSoldStatus(art.id, art.isSold)}
+                            className={`text-[9px] font-mono px-1.5 py-0.5 rounded border transition-colors cursor-pointer ${
+                              art.isSold
+                                ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20'
+                                : 'bg-rose-500/10 text-rose-300 border-rose-500/30 hover:bg-rose-500/20'
+                            }`}
+                            title={art.isSold ? 'Mark artwork as Available' : 'Mark artwork as Sold Out'}
+                          >
+                            {art.isSold ? 'Set Available' : 'Set Sold'}
+                          </button>
+                        )}
+                      </div>
 
                       <div className="flex items-center gap-1.5">
                         <button

@@ -21,6 +21,7 @@ export const ARTIST_INFO = {
 
 export const ARTWORK_CATEGORIES = [
   'All',
+  'Available for Sale',
   'Realistic Portraits',
   'Celebrity Sketches',
   'Couple Sketches',
@@ -39,7 +40,10 @@ export const ARTWORKS_DATA = [
     description: 'A study of intense realism focusing on micro-textures in the iris, delicate eyelash shadows, and soft skin gradation using mono zero erasers.',
     imageUrl: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1200&q=85',
     instagramPostUrl: 'https://www.instagram.com/artist_tushar_02/',
-    isFeatured: true
+    isFeatured: true,
+    isForSale: true,
+    price: 3499,
+    isSold: false
   },
   {
     id: 'sketch-02',
@@ -52,7 +56,10 @@ export const ARTWORKS_DATA = [
     description: 'High contrast dramatic portrait highlighting cinematic rim lighting, deep charcoal blacks, and meticulous beard detailing.',
     imageUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1200&q=85',
     instagramPostUrl: 'https://www.instagram.com/artist_tushar_02/',
-    isFeatured: true
+    isFeatured: true,
+    isForSale: true,
+    price: 4200,
+    isSold: false
   },
   {
     id: 'sketch-03',
@@ -65,7 +72,10 @@ export const ARTWORKS_DATA = [
     description: 'Commissioned romantic couple sketch celebrating authentic joy and shared glances, created with seamless blended shading.',
     imageUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=85',
     instagramPostUrl: 'https://www.instagram.com/artist_tushar_02/',
-    isFeatured: true
+    isFeatured: true,
+    isForSale: true,
+    price: 5499,
+    isSold: true
   },
   {
     id: 'sketch-04',

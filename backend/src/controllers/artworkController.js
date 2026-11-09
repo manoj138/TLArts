@@ -1,6 +1,6 @@
 const Artwork = require("../modals/Artwork");
 const { deleteUploadedFiles } = require("../helpers/deleteUploadFiles");
-const { handle200, handle201, handle204 } = require("../helpers/successHandler");
+const { handle200, handle201 } = require("../helpers/successHandler");
 const { handle404, handle422, handle500, formatMongooseError } = require("../helpers/errorHandler");
 
 /**
@@ -8,11 +8,15 @@ const { handle404, handle422, handle500, formatMongooseError } = require("../hel
  */
 const getAllArtworks = async (req, res) => {
     try {
-        const { category, search, featured } = req.query;
+        const { category, search, featured, forSale } = req.query;
         let query = {};
 
-        if (category && category !== "All") {
+        if (category && category !== "All" && category !== "Available for Sale") {
             query.category = category;
+        }
+
+        if (category === "Available for Sale" || forSale === "true") {
+            query.isForSale = true;
         }
 
         if (featured === "true") {
@@ -72,7 +76,10 @@ const createArtwork = async (req, res) => {
             year,
             description,
             instagramPostUrl,
-            isFeatured
+            isFeatured,
+            isForSale,
+            price,
+            isSold
         } = req.body;
 
         if (!title || !category || !medium) {
@@ -106,7 +113,10 @@ const createArtwork = async (req, res) => {
             description: description ? description.trim() : "",
             imageUrl: imageUrl,
             instagramPostUrl: instagramPostUrl ? instagramPostUrl.trim() : "",
-            isFeatured: isFeatured === true || isFeatured === "true"
+            isFeatured: isFeatured === true || isFeatured === "true",
+            isForSale: isForSale === true || isForSale === "true",
+            price: price ? Number(price) : 0,
+            isSold: isSold === true || isSold === "true"
         });
 
         return handle201(res, newArtwork, "Artwork created successfully.");
@@ -139,6 +149,18 @@ const updateArtwork = async (req, res) => {
 
         if (typeof updateData.isFeatured !== "undefined") {
             updateData.isFeatured = updateData.isFeatured === true || updateData.isFeatured === "true";
+        }
+
+        if (typeof updateData.isForSale !== "undefined") {
+            updateData.isForSale = updateData.isForSale === true || updateData.isForSale === "true";
+        }
+
+        if (typeof updateData.isSold !== "undefined") {
+            updateData.isSold = updateData.isSold === true || updateData.isSold === "true";
+        }
+
+        if (typeof updateData.price !== "undefined") {
+            updateData.price = Number(updateData.price) || 0;
         }
 
         const updatedArtwork = await Artwork.findByIdAndUpdate(
@@ -188,4 +210,3 @@ module.exports = {
     updateArtwork,
     deleteArtwork
 };
-

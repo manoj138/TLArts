@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { X, ExternalLink, Calendar, Maximize2, Tag } from 'lucide-react';
+import { X, ExternalLink, Calendar, Maximize2, Tag, MessageSquare } from 'lucide-react';
 import InstagramIcon from '../common/InstagramIcon';
 
 export default function ArtworkModal({ artwork, onClose }) {
@@ -81,7 +81,7 @@ export default function ArtworkModal({ artwork, onClose }) {
             </p>
 
             {/* Technical Specifications */}
-            <div className="bg-[#161622]/60 border border-white/10 rounded-xl p-4 mb-6 space-y-2 text-xs">
+            <div className="bg-[#161622]/60 border border-white/10 rounded-xl p-4 mb-4 space-y-2 text-xs">
               <div className="flex gap-2">
                 <span className="font-['Space_Grotesk',monospace] text-slate-500 w-24 shrink-0">Medium:</span>
                 <span className="text-slate-200 font-medium">{artwork.medium}</span>
@@ -95,6 +95,68 @@ export default function ArtworkModal({ artwork, onClose }) {
                 <span className="text-slate-200 font-medium">Tushar Lohar (@artist_tushar_02)</span>
               </div>
             </div>
+
+            {/* Original Artwork Selling & Purchase Section */}
+            {artwork.isForSale && (
+              <div className="bg-[#141422] border border-[#c5a059]/40 rounded-xl p-4 md:p-5 mb-5 space-y-3 shadow-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] font-['Space_Grotesk',monospace] tracking-widest text-[#c5a059] uppercase block font-semibold">
+                      ORIGINAL HANDMADE ARTWORK
+                    </span>
+                    <div className="flex items-baseline gap-2 mt-0.5">
+                      <span className="font-['Bebas_Neue',sans-serif] text-3xl md:text-4xl text-white tracking-wide">
+                        ₹{(artwork.price || 0).toLocaleString('en-IN')}
+                      </span>
+                      <span className="text-[11px] text-slate-400 font-mono">
+                        (Inspected & Shipped Securely)
+                      </span>
+                    </div>
+                  </div>
+
+                  <span
+                    className={`text-xs font-mono px-3 py-1 rounded-full font-semibold border ${
+                      artwork.isSold
+                        ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                        : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 animate-pulse'
+                    }`}
+                  >
+                    {artwork.isSold ? 'Sold Out' : 'Available for Sale'}
+                  </span>
+                </div>
+
+                {!artwork.isSold ? (
+                  <a
+                    href={`https://wa.me/919673400446?text=${encodeURIComponent(
+                      `Hello Tushar Lohar Arts (TLArts)!\n\nI am interested in purchasing your original handmade sketch:\n• Title: "${artwork.title}"\n• Medium: ${artwork.medium}\n• Dimensions: ${artwork.dimensions}\n• Price: ₹${artwork.price || 0}\n\nPlease share payment details (UPI/Bank) and shipping timeline.`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#2bf376] hover:to-[#25D366] text-white font-semibold text-xs md:text-sm py-3 px-4 rounded-xl shadow-lg shadow-emerald-900/30 transition-all duration-200 cursor-pointer"
+                  >
+                    <MessageSquare size={16} />
+                    <span>Buy This Original via WhatsApp (Direct Checkout)</span>
+                  </a>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="text-xs text-slate-400 bg-black/40 border border-white/5 rounded-lg p-2.5 text-center">
+                      This original sketch has been collected by a private art patron.
+                    </div>
+                    <a
+                      href="#enquiry"
+                      onClick={() => {
+                        onClose();
+                        const el = document.getElementById('enquiry');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      className="w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 border border-white/15 text-slate-200 font-medium text-xs py-2.5 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <span>Commission a Similar Custom Sketch →</span>
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Instagram Redirection Banner */}
             <div className="bg-gradient-to-br from-[#1c1424] to-[#101018] border border-[#c5a059]/30 rounded-xl p-4 space-y-3">
