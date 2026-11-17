@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Filter, Eye, X } from 'lucide-react';
+import { Search, Filter, Eye, X, MessageCircle } from 'lucide-react';
 import InstagramIcon from '../common/InstagramIcon';
 import { ARTWORK_CATEGORIES } from '../../data/artworks';
 import { useArtworks } from '../../context/ArtworkContext';
@@ -167,16 +167,33 @@ export default function SketchGallery({ onSelectArtwork }) {
                     <span className="font-['Space_Grotesk',monospace] text-[10px] sm:text-xs text-[#c5a059] group-hover:translate-x-0.5 transition-transform">
                       View Story →
                     </span>
-                    <a
-                      href={art.instagramPostUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-slate-500 hover:text-[#c5a059] p-0.5 sm:p-1 transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                      title="Open on Instagram"
-                    >
-                      <InstagramIcon size={13} />
-                    </a>
+                    <div className="flex items-center gap-2">
+                      {art.isForSale && !art.isSold && (
+                        <a
+                          href={`https://wa.me/919673400446?text=${encodeURIComponent(
+                            `🎨 *TLArts Inquiry*\nHello Tushar! I want to purchase your original sketch "${art.title}" (₹${(art.price || 0).toLocaleString('en-IN')}). Please share payment & shipping details.`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-emerald-400 hover:text-white bg-emerald-500/10 hover:bg-[#25D366] border border-emerald-500/30 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full flex items-center gap-1 text-[9px] sm:text-[10px] font-mono transition-all duration-200 shadow-sm"
+                          onClick={(e) => e.stopPropagation()}
+                          title="Quick Buy via WhatsApp"
+                        >
+                          <MessageCircle size={11} />
+                          <span>Buy</span>
+                        </a>
+                      )}
+                      <a
+                        href={art.instagramPostUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-slate-500 hover:text-[#c5a059] p-0.5 sm:p-1 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                        title="Open on Instagram"
+                      >
+                        <InstagramIcon size={13} />
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>

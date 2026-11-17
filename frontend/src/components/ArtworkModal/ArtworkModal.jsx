@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { X, ExternalLink, Calendar, Maximize2, Tag, MessageSquare } from 'lucide-react';
+import { X, ExternalLink, Calendar, Maximize2, Tag, MessageSquare, ShieldCheck, Package, Truck, Sparkles } from 'lucide-react';
 import InstagramIcon from '../common/InstagramIcon';
 
 export default function ArtworkModal({ artwork, onClose }) {
@@ -98,18 +98,18 @@ export default function ArtworkModal({ artwork, onClose }) {
 
             {/* Original Artwork Selling & Purchase Section */}
             {artwork.isForSale && (
-              <div className="bg-[#141422] border border-[#c5a059]/40 rounded-xl p-4 md:p-5 mb-5 space-y-3 shadow-xl">
+              <div className="bg-[#141422] border border-[#c5a059]/40 rounded-xl p-4 md:p-5 mb-5 space-y-3.5 shadow-xl">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] font-['Space_Grotesk',monospace] tracking-widest text-[#c5a059] uppercase block font-semibold">
-                      ORIGINAL HANDMADE ARTWORK
+                    <span className="text-[10px] font-['Space_Grotesk',monospace] tracking-widest text-[#c5a059] uppercase block font-semibold flex items-center gap-1">
+                      <Sparkles size={11} /> ORIGINAL 1-OF-1 ARTWORK
                     </span>
                     <div className="flex items-baseline gap-2 mt-0.5">
                       <span className="font-['Bebas_Neue',sans-serif] text-3xl md:text-4xl text-white tracking-wide">
                         ₹{(artwork.price || 0).toLocaleString('en-IN')}
                       </span>
                       <span className="text-[11px] text-slate-400 font-mono">
-                        (Inspected & Shipped Securely)
+                        (Includes Insurance & Shipping)
                       </span>
                     </div>
                   </div>
@@ -121,26 +121,45 @@ export default function ArtworkModal({ artwork, onClose }) {
                         : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 animate-pulse'
                     }`}
                   >
-                    {artwork.isSold ? 'Sold Out' : 'Available for Sale'}
+                    {artwork.isSold ? 'Sold Out' : 'Available for Purchase'}
                   </span>
                 </div>
 
                 {!artwork.isSold ? (
-                  <a
-                    href={`https://wa.me/919673400446?text=${encodeURIComponent(
-                      `Hello Tushar Lohar Arts (TLArts)!\n\nI am interested in purchasing your original handmade sketch:\n• Title: "${artwork.title}"\n• Medium: ${artwork.medium}\n• Dimensions: ${artwork.dimensions}\n• Price: ₹${artwork.price || 0}\n\nPlease share payment details (UPI/Bank) and shipping timeline.`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#2bf376] hover:to-[#25D366] text-white font-semibold text-xs md:text-sm py-3 px-4 rounded-xl shadow-lg shadow-emerald-900/30 transition-all duration-200 cursor-pointer"
-                  >
-                    <MessageSquare size={16} />
-                    <span>Buy This Original via WhatsApp (Direct Checkout)</span>
-                  </a>
+                  <>
+                    <a
+                      href={`https://wa.me/919673400446?text=${encodeURIComponent(
+                        `🎨 *TLArts — Original Artwork Purchase Inquiry*\n\nHello Tushar! I would like to purchase your authentic original artwork:\n\n• *Artwork Title:* "${artwork.title}"\n• *Medium:* ${artwork.medium}\n• *Dimensions:* ${artwork.dimensions}\n• *Listed Price:* ₹${(artwork.price || 0).toLocaleString('en-IN')}\n\nPlease share availability status, courier packaging details, and UPI/Bank payment methods.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-center gap-2.5 bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#2bf376] hover:to-[#25D366] text-white font-semibold text-xs md:text-sm py-3.5 px-4 rounded-xl shadow-lg shadow-emerald-950/40 transition-all duration-200 cursor-pointer group"
+                    >
+                      <MessageSquare size={17} className="group-hover:scale-110 transition-transform" />
+                      <span>Buy via WhatsApp (Direct Artist Checkout)</span>
+                    </a>
+
+                    {/* Art Collector Trust Highlights */}
+                    <div className="grid grid-cols-3 gap-2 pt-1 border-t border-white/5 text-[10px] text-slate-400">
+                      <div className="flex items-center gap-1.5">
+                        <ShieldCheck size={12} className="text-[#c5a059] shrink-0" />
+                        <span className="truncate">Signed Authenticity</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Package size={12} className="text-[#c5a059] shrink-0" />
+                        <span className="truncate">Rigid Art Packaging</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Truck size={12} className="text-[#c5a059] shrink-0" />
+                        <span className="truncate">Express Pan-India</span>
+                      </div>
+                    </div>
+                  </>
                 ) : (
-                  <div className="space-y-2">
-                    <div className="text-xs text-slate-400 bg-black/40 border border-white/5 rounded-lg p-2.5 text-center">
-                      This original sketch has been collected by a private art patron.
+                  <div className="space-y-2.5">
+                    <div className="text-xs text-slate-300 bg-rose-950/20 border border-rose-500/20 rounded-lg p-3 text-center">
+                      <p className="font-medium text-rose-300">This original piece has been acquired into a private collection.</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Custom commissioned variations can be requested directly.</p>
                     </div>
                     <a
                       href="#enquiry"
@@ -149,7 +168,7 @@ export default function ArtworkModal({ artwork, onClose }) {
                         const el = document.getElementById('enquiry');
                         if (el) el.scrollIntoView({ behavior: 'smooth' });
                       }}
-                      className="w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 border border-white/15 text-slate-200 font-medium text-xs py-2.5 rounded-lg transition-colors cursor-pointer"
+                      className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#e8c985] to-[#c5a059] hover:from-[#f5dca2] hover:to-[#e8c985] text-black font-semibold text-xs py-2.5 rounded-lg shadow transition-all cursor-pointer"
                     >
                       <span>Commission a Similar Custom Sketch →</span>
                     </a>
