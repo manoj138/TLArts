@@ -228,6 +228,7 @@ export default function OwnerStudioPage() {
     addVideo,
     deleteVideo,
     refreshVideos,
+    refreshArtworks,
     resetToDefaultArtworks,
     logoutOwner
   } = useArtworks();
@@ -395,13 +396,14 @@ export default function OwnerStudioPage() {
     }
   };
 
-  // Reset to original 8 default sketches
-  const handleResetDefaults = () => {
-    if (window.confirm('Reset all portfolio sketches back to the original 8 default artworks? Any edits will be restored.')) {
-      resetToDefaultArtworks();
-      handleCancelEdit();
-      setSuccessMsg('Portfolio reset to original default sketches.');
+  // Sync portfolio from live MongoDB database
+  const handleSyncArtworks = async () => {
+    try {
+      await refreshArtworks();
+      setSuccessMsg('Portfolio synced with live database.');
       setTimeout(() => setSuccessMsg(''), 3000);
+    } catch (err) {
+      setError('Failed to sync with database: ' + err.message);
     }
   };
 
@@ -877,7 +879,7 @@ export default function OwnerStudioPage() {
                               setVideoUrlInput(e.target.value);
                               setSelectedVideoFile(null);
                             }}
-                            placeholder="https://assets.mixkit.co/...mp4"
+                            placeholder="https://your-domain.com/video.mp4"
                             className="w-full bg-[#181826] border border-white/10 focus:border-[#c5a059] rounded-xl py-2.5 pl-10 pr-3 text-xs text-white placeholder-slate-500 outline-none"
                           />
                         </div>
@@ -1082,6 +1084,33 @@ export default function OwnerStudioPage() {
               </div>
             </div>
 
+            {/* Active Edit Mode Notification Banner */}
+            {editingId && (
+              <div className="bg-gradient-to-r from-amber-500/15 via-[#c5a059]/15 to-amber-500/15 border border-[#c5a059]/40 rounded-xl p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-[#c5a059]/20 text-[#c5a059] flex items-center justify-center shrink-0">
+                    <Pencil size={15} />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-['Space_Grotesk',monospace] uppercase text-[#c5a059] font-semibold tracking-wider block">
+                      EDIT MODE ACTIVE
+                    </span>
+                    <span className="text-xs text-white">
+                      You are editing: <strong>&ldquo;{title || 'Selected Artwork'}&rdquo;</strong>
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs px-4 py-2 rounded-lg font-mono transition-colors cursor-pointer flex items-center justify-center gap-1.5 w-fit"
+                >
+                  <X size={13} />
+                  <span>Cancel Edit & Return to New Form</span>
+                </button>
+              </div>
+            )}
+
             {/* Split Screen Workspace: Form (Left) & Real-Time Card Preview (Right) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start text-left">
               {/* Left Column: Form (Supports both Add & Edit) */}
@@ -1115,9 +1144,11 @@ export default function OwnerStudioPage() {
                     <button
                       type="button"
                       onClick={handleCancelEdit}
-                      className="text-xs text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-white/15 transition-colors cursor-pointer"
+                      className="text-xs text-rose-300 hover:text-white bg-rose-500/15 hover:bg-rose-500/25 px-3 py-1.5 rounded-lg border border-rose-500/30 transition-colors cursor-pointer flex items-center gap-1 font-mono font-medium"
+                      title="Discard changes and exit edit mode"
                     >
-                      Cancel Edit ✕
+                      <X size={12} />
+                      <span>Cancel Edit</span>
                     </button>
                   ) : (
                     <span className="text-[11px] font-mono text-slate-500 uppercase">
@@ -1241,7 +1272,7 @@ export default function OwnerStudioPage() {
                             type="url"
                             value={imageUrl.startsWith('data:') ? '' : imageUrl}
                             onChange={handleUrlChange}
-                            placeholder="https://images.unsplash.com/..."
+                            placeholder="https://your-domain.com/artwork.jpg"
                             className="w-full bg-[#181826] border border-white/10 focus:border-[#c5a059] rounded-xl py-2.5 pl-10 pr-3 text-xs text-white placeholder-slate-500 outline-none"
                           />
                         </div>
@@ -1391,9 +1422,11 @@ export default function OwnerStudioPage() {
                       <button
                         type="button"
                         onClick={handleCancelEdit}
-                        className="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 text-xs px-5 py-3.5 rounded-xl transition-all cursor-pointer font-mono"
+                        className="flex items-center justify-center gap-1.5 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs px-6 py-3.5 rounded-xl transition-all cursor-pointer font-mono font-semibold"
+                        title="Discard changes and exit edit mode"
                       >
-                        Cancel
+                        <X size={14} />
+                        <span>Cancel Edit</span>
                       </button>
                     )}
 
@@ -1534,12 +1567,12 @@ export default function OwnerStudioPage() {
 
                   <button
                     type="button"
-                    onClick={handleResetDefaults}
+                    onClick={handleSyncArtworks}
                     className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-slate-200 bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 rounded-lg font-mono transition-colors cursor-pointer"
-                    title="Restore original 8 default portfolio sketches"
+                    title="Sync artworks with live MongoDB database"
                   >
                     <RotateCcw size={12} />
-                    <span>Reset Defaults</span>
+                    <span>Sync Database</span>
                   </button>
                 </div>
               </div>
@@ -1624,15 +1657,27 @@ export default function OwnerStudioPage() {
                       </div>
 
                       <div className="flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => handleStartEdit(art)}
-                          className="flex items-center gap-1 text-[#c5a059] hover:text-amber-200 bg-[#c5a059]/10 hover:bg-[#c5a059]/20 text-[11px] font-mono px-2 py-1 rounded-lg border border-[#c5a059]/30 transition-colors cursor-pointer"
-                          title="Edit this sketch"
-                        >
-                          <Pencil size={11} />
-                          <span>Edit</span>
-                        </button>
+                        {editingId === art.id ? (
+                          <button
+                            type="button"
+                            onClick={handleCancelEdit}
+                            className="flex items-center gap-1 text-rose-300 hover:text-white bg-rose-500/20 hover:bg-rose-500/40 text-[11px] font-mono px-2 py-1 rounded-lg border border-rose-500/40 transition-colors cursor-pointer"
+                            title="Cancel editing this sketch"
+                          >
+                            <X size={11} />
+                            <span>Cancel Edit</span>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleStartEdit(art)}
+                            className="flex items-center gap-1 text-[#c5a059] hover:text-amber-200 bg-[#c5a059]/10 hover:bg-[#c5a059]/20 text-[11px] font-mono px-2 py-1 rounded-lg border border-[#c5a059]/30 transition-colors cursor-pointer"
+                            title="Edit this sketch"
+                          >
+                            <Pencil size={11} />
+                            <span>Edit</span>
+                          </button>
+                        )}
 
                         <button
                           type="button"

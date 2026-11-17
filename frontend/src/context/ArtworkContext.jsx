@@ -6,26 +6,26 @@ import { authApi, artworkApi, videoApi, getFullImageUrl } from '../api/apiClient
 const ArtworkContext = createContext();
 
 const OWNER_PASSCODE = 'TLARTS@02';
-const STORAGE_KEY = 'tlarts_all_artworks_v1';
-const VIDEO_STORAGE_KEY = 'tlarts_all_videos_v1';
+const STORAGE_KEY = 'tlarts_all_artworks_v2';
+const VIDEO_STORAGE_KEY = 'tlarts_all_videos_v2';
 const AUTH_KEY = 'tlarts_owner_auth';
 const TOKEN_KEY = 'tlarts_admin_token';
 
 export function ArtworkProvider({ children }) {
-  const [artworks, setArtworks] = useState(ARTWORKS_DATA);
-  const [videos, setVideos] = useState(DEFAULT_VIDEOS);
+  const [artworks, setArtworks] = useState([]);
+  const [videos, setVideos] = useState([]);
   const [isOwner, setIsOwner] = useState(false);
   const [currentView, setCurrentView] = useState('portfolio'); // 'portfolio' | 'studio'
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [videosLoading, setVideosLoading] = useState(false);
 
-  // Fetch videos from live backend API with fallback
+  // Fetch videos from live backend API
   const refreshVideos = useCallback(async () => {
     try {
       setVideosLoading(true);
       const liveVideos = await videoApi.getAll();
-      if (Array.isArray(liveVideos) && liveVideos.length > 0) {
+      if (Array.isArray(liveVideos)) {
         const formatted = liveVideos.map((v) => ({
           ...v,
           id: v._id || v.id,
@@ -46,7 +46,7 @@ export function ArtworkProvider({ children }) {
       const saved = localStorage.getItem(VIDEO_STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           setVideos(parsed);
           return;
         }
@@ -54,15 +54,15 @@ export function ArtworkProvider({ children }) {
     } catch (err) {
       console.error('Error parsing local videos:', err);
     }
-    setVideos(DEFAULT_VIDEOS);
+    setVideos([]);
   }, []);
 
-  // Fetch artworks from live backend API or fallback to curated default collection
+  // Fetch artworks from live backend API
   const refreshArtworks = useCallback(async () => {
     try {
       setIsLoading(true);
       const liveArtworks = await artworkApi.getAll();
-      if (Array.isArray(liveArtworks) && liveArtworks.length > 0) {
+      if (Array.isArray(liveArtworks)) {
         const formatted = liveArtworks.map((art) => ({
           ...art,
           id: art._id || art.id,
@@ -73,17 +73,16 @@ export function ArtworkProvider({ children }) {
         return;
       }
     } catch (e) {
-      console.warn('Backend artworks fetch notice (using cached/default artworks):', e.message);
+      console.warn('Backend artworks fetch notice:', e.message);
     } finally {
       setIsLoading(false);
     }
 
-    // Fallback: check localStorage or default ARTWORKS_DATA
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           setArtworks(parsed);
           return;
         }
@@ -91,7 +90,7 @@ export function ArtworkProvider({ children }) {
     } catch (err) {
       console.error('Error parsing local artworks:', err);
     }
-    setArtworks(ARTWORKS_DATA);
+    setArtworks([]);
   }, []);
 
   // Check auth session & load artworks on mount
@@ -344,10 +343,10 @@ export function ArtworkProvider({ children }) {
     });
   };
 
-  // Reset to original factory portfolio
+  // Reset / Clear local portfolio cache
   const resetToDefaultArtworks = () => {
-    setArtworks(ARTWORKS_DATA);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(ARTWORKS_DATA));
+    setArtworks([]);
+    localStorage.removeItem(STORAGE_KEY);
   };
 
   return (

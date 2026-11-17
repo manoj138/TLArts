@@ -36,7 +36,7 @@ export default function Footer() {
             </h4>
             <div className="flex flex-col gap-2.5 text-sm text-slate-400">
               <a href="#about" className="hover:text-[#c5a059] transition-colors">About Tushar Lohar</a>
-              <a href="#featured" className="hover:text-[#c5a059] transition-colors">Featured Artworks</a>
+              <a href="#videos" className="hover:text-[#c5a059] transition-colors">Studio Reels & Timelapses</a>
               <a href="#gallery" className="hover:text-[#c5a059] transition-colors">Complete Sketch Gallery</a>
               <a href="#process" className="hover:text-[#c5a059] transition-colors">The Creative Process</a>
               <a href="#enquiry" className="hover:text-[#c5a059] transition-colors">Commission a Portrait</a>

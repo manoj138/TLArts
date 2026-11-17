@@ -199,6 +199,38 @@ export default function SketchGallery({ onSelectArtwork }) {
               </div>
             ))}
           </div>
+        ) : artworks.length === 0 ? (
+          /* Empty Studio Archive State */
+          <div className="text-center py-20 px-6 bg-[#12121a]/60 border border-dashed border-[#c5a059]/25 rounded-2xl max-w-lg mx-auto space-y-4">
+            <div className="w-14 h-14 rounded-full bg-[#c5a059]/10 text-[#c5a059] flex items-center justify-center mx-auto">
+              <Eye size={24} />
+            </div>
+            <div>
+              <h3 className="font-['Bebas_Neue',sans-serif] text-3xl text-white tracking-wide mb-1">
+                Studio Archive Updating
+              </h3>
+              <p className="text-sm text-slate-400 leading-relaxed max-w-md mx-auto">
+                Tushar Lohar is currently curating original handmade sketches for the online gallery. You can commission a custom portrait or explore daily works on Instagram.
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-3 pt-2 flex-wrap">
+              <a
+                href="#enquiry"
+                className="bg-gradient-to-r from-[#e8c985] to-[#c5a059] text-black font-semibold text-xs px-5 py-2.5 rounded-full hover:shadow-lg transition-all cursor-pointer"
+              >
+                Commission a Portrait →
+              </a>
+              <a
+                href="https://www.instagram.com/artist_tushar_02/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white/10 hover:bg-white/15 border border-white/15 text-slate-200 font-medium text-xs px-4 py-2.5 rounded-full transition-all flex items-center gap-1.5"
+              >
+                <InstagramIcon size={14} />
+                <span>@artist_tushar_02</span>
+              </a>
+            </div>
+          </div>
         ) : (
           /* Empty Search / Filter State */
           <div className="text-center py-20 px-6 bg-[#12121a]/50 border border-dashed border-white/10 rounded-2xl max-w-lg mx-auto">

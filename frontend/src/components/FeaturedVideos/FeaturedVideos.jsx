@@ -184,10 +184,27 @@ export default function FeaturedVideos() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 bg-[#101018] border border-dashed border-white/10 rounded-2xl p-8 space-y-3">
-            <Film size={40} className="mx-auto text-[#c5a059] opacity-40" />
-            <h3 className="font-['Bebas_Neue',sans-serif] text-2xl text-white">Videos Coming Soon</h3>
-            <p className="text-xs text-slate-400">Timelapses and drawing process videos are being prepared in the studio.</p>
+          <div className="text-center py-16 bg-[#101018]/80 border border-dashed border-[#c5a059]/20 rounded-2xl p-8 max-w-lg mx-auto space-y-4">
+            <div className="w-12 h-12 rounded-full bg-[#c5a059]/10 text-[#c5a059] flex items-center justify-center mx-auto">
+              <Film size={24} />
+            </div>
+            <div>
+              <h3 className="font-['Bebas_Neue',sans-serif] text-2xl text-white tracking-wide mb-1">
+                Studio Timelapses Updating
+              </h3>
+              <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
+                New drawing process videos and pencil timelapses are being uploaded. Watch live studio reels on Instagram.
+              </p>
+            </div>
+            <a
+              href="https://www.instagram.com/artist_tushar_02/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-[#e8c985] to-[#c5a059] text-black font-semibold text-xs px-5 py-2.5 rounded-full hover:shadow-lg hover:shadow-[#c5a059]/20 transition-all cursor-pointer"
+            >
+              <InstagramIcon size={14} />
+              <span>Watch Reels on @artist_tushar_02</span>
+            </a>
           </div>
         )}
       </div>

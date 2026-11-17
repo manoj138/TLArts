@@ -305,7 +305,7 @@ export default function AddArtworkModal() {
                       type="url"
                       value={imageUrl.startsWith('data:') ? '' : imageUrl}
                       onChange={handleUrlChange}
-                      placeholder="https://images.unsplash.com/..."
+                      placeholder="https://your-domain.com/artwork.jpg"
                       className="w-full bg-[#181824] border border-white/10 focus:border-[#c5a059] rounded-lg py-2 pl-8 pr-3 text-xs text-white placeholder-slate-500 outline-none"
                     />
                   </div>
