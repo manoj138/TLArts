@@ -1,3 +1,10 @@
+const dns = require('dns');
+try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch (e) {
+    // fallback to system dns
+}
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -8,7 +15,11 @@ const { ensureDefaultAdmin } = require('./src/controllers/adminController');
 const app = express();
 
 // 1. Database Connection & Initial setup
-connectionDb().then(async () => {
+connectionDb().then(async (conn) => {
+    if (!conn) {
+        console.warn("Database connection unavailable. Skipping initial admin check.");
+        return;
+    }
     try {
         await ensureDefaultAdmin();
         console.log("Admin account status checked.");
