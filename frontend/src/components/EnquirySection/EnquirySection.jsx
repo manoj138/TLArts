@@ -83,6 +83,22 @@ export default function EnquirySection() {
     return errs;
   };
 
+  const generateWhatsAppLink = () => {
+    const hasPhotoText = selectedFile
+      ? `\n📸 *Reference Photo:* _Yes, uploaded to website studio (${selectedFile.name})_`
+      : `\n📸 *Reference Photo:* _Sharing directly here in chat_`;
+
+    const notesText = formData.message?.trim()
+      ? `\n📝 *Client Notes:* _"${formData.message.trim()}"_`
+      : '';
+
+    const text = encodeURIComponent(
+      `🎨 *TLArts — New Custom Sketch Commission* 🎨\n────────────────────────────\n👋 _Hello Tushar!_\n\nI just submitted a custom sketch commission request on your website:\n\n👤 *Client Name:* *${formData.name?.trim() || 'Art Lover'}*\n📞 *Contact / Phone:* _${formData.contact?.trim()}_\n🖼️ *Sketch Type:* *${formData.sketchType}*\n📐 *Requested Size:* *${formData.size}*${hasPhotoText}${notesText}\n\n────────────────────────────\nPlease share pricing quotation, slot availability, and delivery timeline.\n\n_Looking forward to your response!_ ✨`
+    );
+
+    return `https://wa.me/919673400446?text=${text}`;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
@@ -93,6 +109,8 @@ export default function EnquirySection() {
 
     setErrors({});
     setIsSubmitting(true);
+
+    const waUrl = generateWhatsAppLink();
 
     try {
       // 1. Submit to Live Backend API with FormData
@@ -127,21 +145,24 @@ export default function EnquirySection() {
       }
 
       setSubmitted(true);
+
+      // 3. Immediately launch WhatsApp chat with Tushar
+      try {
+        const opened = window.open(waUrl, '_blank');
+        if (!opened || opened.closed || typeof opened.closed === 'undefined') {
+          window.location.href = waUrl;
+        }
+      } catch (openErr) {
+        window.location.href = waUrl;
+      }
     } catch (err) {
       console.error('Failed to save inquiry:', err);
       // Still show success to visitor so experience is uninterrupted
       setSubmitted(true);
+      window.location.href = waUrl;
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const generateWhatsAppLink = () => {
-    const hasPhotoText = selectedFile ? `\n• Reference Photo Attached: Yes (${selectedFile.name})` : '';
-    const text = encodeURIComponent(
-      `Hello Tushar Lohar Arts (TLArts)!\n\nI just submitted a custom portrait commission request on your website:\n• Name: ${formData.name || 'Art Lover'}\n• Contact: ${formData.contact}\n• Sketch Type: ${formData.sketchType}\n• Preferred Size: ${formData.size}${hasPhotoText}\n• Notes: ${formData.message || 'Looking for pricing and availability.'}\n\nLet's discuss further on WhatsApp!`
-    );
-    return `https://wa.me/919673400446?text=${text}`;
   };
 
   return (
@@ -201,15 +222,15 @@ export default function EnquirySection() {
           {/* Right Column: Interactive Form */}
           <div className="lg:col-span-7 bg-[#111118] border border-[#c5a059]/25 rounded-2xl p-8 md:p-10 shadow-2xl shadow-black">
             {submitted ? (
-              <div className="text-center py-8 flex flex-col items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-[#c5a059]/15 text-[#c5a059] flex items-center justify-center">
+              <div className="text-center py-6 flex flex-col items-center gap-4 animate-in fade-in zoom-in-95 duration-300">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center animate-bounce">
                   <CheckCircle2 size={36} />
                 </div>
                 <h3 className="font-['Bebas_Neue',sans-serif] text-3xl text-white tracking-wide">
-                  Commission Request Received!
+                  Commission Request Sent!
                 </h3>
                 <p className="text-sm text-slate-300 leading-relaxed max-w-md">
-                  Thank you, <strong className="text-white font-medium">{formData.name}</strong>! Your sketch request for a <em className="text-[#c5a059]">{formData.sketchType} ({formData.size})</em> and reference photo have been delivered to artist Tushar Lohar.
+                  Thank you, <strong className="text-white font-medium">{formData.name}</strong>! Your sketch request for a <em className="text-[#c5a059]">{formData.sketchType} ({formData.size})</em> and reference photo have been saved to Tushar&apos;s studio archive.
                 </p>
 
                 {previewUrl && (
@@ -228,47 +249,55 @@ export default function EnquirySection() {
                   </div>
                 )}
 
-                <div className="bg-[#161622]/80 border border-[#c5a059]/25 rounded-xl p-5 w-full my-3 space-y-3">
-                  <p className="font-['Space_Grotesk',monospace] text-xs text-[#c5a059]">
-                    Connect with Tushar directly on WhatsApp or Instagram:
-                  </p>
-                  <div className="flex gap-3 justify-center flex-wrap">
-                    <a
-                      href={generateWhatsAppLink()}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 bg-[#25d366] hover:bg-[#20ba59] text-black font-semibold text-xs px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-lg shadow-[#25d366]/20"
-                    >
-                      <MessageSquare size={15} /> Send via WhatsApp
-                    </a>
-                    <a
-                      href={ARTIST_INFO.instagramUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/15 text-white font-semibold text-xs px-4 py-2.5 rounded-lg border border-white/20 transition-all cursor-pointer"
-                    >
-                      <InstagramIcon size={15} /> DM on Instagram
-                    </a>
+                {/* Direct WhatsApp Connection Banner */}
+                <div className="bg-gradient-to-r from-emerald-950/70 to-[#128C7E]/20 border border-emerald-500/40 rounded-2xl p-5 w-full my-2 space-y-3 shadow-xl">
+                  <div className="flex items-center justify-center gap-2 text-emerald-300 font-medium text-xs">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                    <span>Connecting directly to artist Tushar on WhatsApp...</span>
                   </div>
+                  <a
+                    href={generateWhatsAppLink()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#2bf376] hover:to-[#25D366] text-white font-semibold text-xs sm:text-sm px-6 py-3.5 rounded-xl transition-all cursor-pointer shadow-lg shadow-emerald-900/40"
+                  >
+                    <MessageSquare size={16} />
+                    <span>Open WhatsApp Chat with Tushar</span>
+                  </a>
+                  <p className="text-[11px] text-slate-400">
+                    If WhatsApp didn&apos;t launch automatically, tap the green button above to start your chat.
+                  </p>
                 </div>
 
-                <button
-                  type="button"
-                  className="font-['Space_Grotesk',monospace] text-xs text-slate-400 hover:text-white underline cursor-pointer"
-                  onClick={() => {
-                    handleRemoveFile();
-                    setSubmitted(false);
-                    setFormData({
-                      name: '',
-                      contact: '',
-                      sketchType: 'Single Realistic Portrait',
-                      size: 'A3 (29.7 × 42.0 cm) - Most Popular',
-                      message: ''
-                    });
-                  }}
-                >
-                  Submit Another Inquiry
-                </button>
+                <div className="flex items-center justify-between w-full pt-3 border-t border-white/10 text-xs">
+                  <a
+                    href={ARTIST_INFO.instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-slate-400 hover:text-[#c5a059] flex items-center gap-1.5 transition-colors"
+                  >
+                    <InstagramIcon size={14} />
+                    <span>DM on Instagram</span>
+                  </a>
+
+                  <button
+                    type="button"
+                    className="font-['Space_Grotesk',monospace] text-xs text-[#c5a059] hover:underline cursor-pointer"
+                    onClick={() => {
+                      handleRemoveFile();
+                      setSubmitted(false);
+                      setFormData({
+                        name: '',
+                        contact: '',
+                        sketchType: 'Single Realistic Portrait',
+                        size: 'A3 (29.7 × 42.0 cm) - Most Popular',
+                        message: ''
+                      });
+                    }}
+                  >
+                    Submit Another Inquiry →
+                  </button>
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSubmit} noValidate className="space-y-5">
@@ -443,9 +472,12 @@ export default function EnquirySection() {
                   disabled={isSubmitting}
                   className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#e8c985] to-[#c5a059] hover:from-[#f5dca2] hover:to-[#e8c985] text-black font-semibold text-sm py-3.5 rounded-lg shadow-lg shadow-[#c5a059]/20 transition-all duration-300 hover:-translate-y-0.5 cursor-pointer mt-2 disabled:opacity-50"
                 >
-                  <span>{isSubmitting ? 'Saving Commission Request...' : 'Submit Commission Request'}</span>
-                  <Send size={15} />
+                  <MessageSquare size={16} />
+                  <span>{isSubmitting ? 'Saving & Launching WhatsApp...' : 'Submit & Connect on WhatsApp'}</span>
                 </button>
+                <p className="text-[11px] text-slate-400 text-center mt-2 font-['Space_Grotesk',monospace]">
+                  ⚡ Automatically saves your request and connects you directly to artist Tushar on WhatsApp.
+                </p>
               </form>
             )}
           </div>
