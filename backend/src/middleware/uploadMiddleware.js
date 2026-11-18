@@ -2,11 +2,14 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
+// Always target backend/public/uploads regardless of working directory
+const BACKEND_PUBLIC_DIR = path.join(__dirname, "..", "..", "public");
+
 /**
  * Configure Multer Storage for specific upload folder (e.g., 'artworks', 'inquiries')
  */
 const createUploader = (subfolder = "general") => {
-    const uploadDir = path.join(process.cwd(), "public", "uploads", subfolder);
+    const uploadDir = path.join(BACKEND_PUBLIC_DIR, "uploads", subfolder);
 
     if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
@@ -46,7 +49,7 @@ const createUploader = (subfolder = "general") => {
  * Configure Multer Storage for Video uploads (MP4, WebM, MOV, etc.)
  */
 const createVideoUploader = (subfolder = "videos") => {
-    const uploadDir = path.join(process.cwd(), "public", "uploads", subfolder);
+    const uploadDir = path.join(BACKEND_PUBLIC_DIR, "uploads", subfolder);
 
     if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });

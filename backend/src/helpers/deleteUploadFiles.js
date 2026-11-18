@@ -1,6 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 
+const BACKEND_PUBLIC_DIR = path.join(__dirname, "..", "..", "public");
+
 // Delete file safely
 function safeUnlink(filePath) {
     try {
@@ -20,7 +22,7 @@ function deleteUploadedFiles(data) {
     if (typeof data === "string") {
         const cleanPath = data.startsWith("/") ? data.slice(1) : data;
         if (cleanPath.startsWith("uploads/")) {
-            const filePath = path.join(process.cwd(), "public", cleanPath);
+            const filePath = path.join(BACKEND_PUBLIC_DIR, cleanPath);
             safeUnlink(filePath);
         }
         return;
@@ -31,7 +33,7 @@ function deleteUploadedFiles(data) {
             if (typeof data[key] === "string") {
                 const cleanPath = data[key].startsWith("/") ? data[key].slice(1) : data[key];
                 if (cleanPath.startsWith("uploads/")) {
-                    const filePath = path.join(process.cwd(), "public", cleanPath);
+                    const filePath = path.join(BACKEND_PUBLIC_DIR, cleanPath);
                     safeUnlink(filePath);
                 }
             } else if (typeof data[key] === "object") {
