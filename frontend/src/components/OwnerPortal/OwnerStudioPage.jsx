@@ -25,6 +25,7 @@ import {
   Play
 } from 'lucide-react';
 import InstagramIcon from '../common/InstagramIcon';
+import DeleteConfirmModal from '../common/DeleteConfirmModal';
 import { useArtworks } from '../../context/ArtworkContext';
 import { ARTWORK_CATEGORIES } from '../../data/artworks';
 import { getInquiries, updateInquiryStatus, deleteInquiry } from '../../utils/inquiryStorage';
@@ -206,7 +207,7 @@ function InquiryCard({ inquiry, onStatusChange, onDelete, onImageClick }) {
 
         <button
           type="button"
-          onClick={() => onDelete(inquiry.id)}
+          onClick={() => onDelete(inquiry)}
           className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 p-2 rounded-lg transition-colors cursor-pointer"
           title="Delete Commission Inquiry"
         >
@@ -253,6 +254,20 @@ export default function OwnerStudioPage() {
   const [inquiriesLoading, setInquiriesLoading] = useState(false);
   const [inquiryStatusFilter, setInquiryStatusFilter] = useState('All');
   const [activeLightboxImage, setActiveLightboxImage] = useState(null);
+
+  // Reusable Luxury Delete Confirmation Dialog State
+  const [deleteDialog, setDeleteDialog] = useState({
+    isOpen: false,
+    type: null, // 'artwork' | 'video' | 'inquiry'
+    id: null,
+    item: null,
+    title: '',
+    itemName: '',
+    itemType: '',
+    thumbnailUrl: null,
+    isLoading: false,
+    warningMessage: null,
+  });
 
   // Edit State for Sketches
   const [editingId, setEditingId] = useState(null);
@@ -326,19 +341,27 @@ export default function OwnerStudioPage() {
     }
   };
 
-  const handleDeleteInquiry = async (id) => {
-    if (window.confirm('Are you sure you want to delete this commission request?')) {
-      try {
-        if (/^[0-9a-fA-F]{24}$/.test(id)) {
-          await inquiryApi.delete(id);
-        } else {
-          await deleteInquiry(id);
-        }
-        setInquiries((prev) => prev.filter((inq) => inq.id !== id));
-      } catch (e) {
-        console.error('Failed to delete inquiry:', e);
-      }
-    }
+  const handleDeleteInquiry = (inquiryOrId) => {
+    const inq =
+      typeof inquiryOrId === 'object' && inquiryOrId !== null
+        ? inquiryOrId
+        : inquiries.find((i) => i.id === inquiryOrId) || { id: inquiryOrId, name: 'Commission Order' };
+    const id = inq.id || inq._id || inquiryOrId;
+    const name = inq.name || 'Client Request';
+    const photo = inq.referencePhotoUrl ? getFullImageUrl(inq.referencePhotoUrl) : null;
+
+    setDeleteDialog({
+      isOpen: true,
+      type: 'inquiry',
+      id,
+      item: inq,
+      title: 'Delete Commission Order',
+      itemName: `${name}${inq.sketchType ? ` (${inq.sketchType})` : ''}`,
+      itemType: 'Commission Order',
+      thumbnailUrl: photo,
+      isLoading: false,
+      warningMessage: 'This client commission request and any associated reference photo will be permanently deleted.'
+    });
   };
 
   // Start editing a sketch
@@ -386,14 +409,18 @@ export default function OwnerStudioPage() {
 
   // Delete an artwork
   const handleDeleteArtwork = (art) => {
-    if (window.confirm(`Are you sure you want to permanently delete "${art.title}" from your portfolio?`)) {
-      deleteArtwork(art.id);
-      if (editingId === art.id) {
-        handleCancelEdit();
-      }
-      setSuccessMsg(`"${art.title}" has been deleted.`);
-      setTimeout(() => setSuccessMsg(''), 3000);
-    }
+    setDeleteDialog({
+      isOpen: true,
+      type: 'artwork',
+      id: art.id,
+      item: art,
+      title: 'Delete Artwork',
+      itemName: art.title || 'Untitled Artwork',
+      itemType: art.category || 'Artwork',
+      thumbnailUrl: art.imageUrl ? getFullImageUrl(art.imageUrl) : null,
+      isLoading: false,
+      warningMessage: 'This artwork and its image file will be permanently deleted from Cloudinary and your portfolio.'
+    });
   };
 
   // Sync portfolio from live MongoDB database
@@ -555,12 +582,61 @@ export default function OwnerStudioPage() {
     }
   };
 
-  const handleDeleteVideo = async (id, title) => {
-    if (window.confirm(`Are you sure you want to permanently delete video "${title}"?`)) {
-      await deleteVideo(id);
-      setSuccessMsg(`"${title}" video has been deleted.`);
-      setTimeout(() => setSuccessMsg(''), 3000);
+  const handleDeleteVideo = (id, title) => {
+    const vid = videos.find((v) => v.id === id) || { id, title };
+    const thumbnail = vid.thumbnailUrl || (vid.posterUrl ? getFullImageUrl(vid.posterUrl) : null);
+    setDeleteDialog({
+      isOpen: true,
+      type: 'video',
+      id,
+      item: vid,
+      title: 'Delete Studio Video',
+      itemName: title || vid.title || 'Studio Video',
+      itemType: 'Studio Reel / Video',
+      thumbnailUrl: thumbnail,
+      isLoading: false,
+      warningMessage: 'This studio video will be permanently removed from your showcase and Cloudinary storage.'
+    });
+  };
+
+  // Execute confirmed deletion across any category (Artworks, Videos, Inquiries)
+  const handleConfirmDelete = async () => {
+    const { type, id, itemName } = deleteDialog;
+    if (!type || !id) return;
+
+    setDeleteDialog((prev) => ({ ...prev, isLoading: true }));
+
+    try {
+      if (type === 'artwork') {
+        await deleteArtwork(id);
+        if (editingId === id) {
+          handleCancelEdit();
+        }
+        setSuccessMsg(`"${itemName}" has been permanently deleted.`);
+      } else if (type === 'video') {
+        await deleteVideo(id);
+        setSuccessMsg(`Video "${itemName}" has been permanently deleted.`);
+      } else if (type === 'inquiry') {
+        if (/^[0-9a-fA-F]{24}$/.test(id)) {
+          await inquiryApi.delete(id);
+        } else {
+          await deleteInquiry(id);
+        }
+        setInquiries((prev) => prev.filter((inq) => inq.id !== id));
+        setSuccessMsg(`Commission order for "${itemName}" has been deleted.`);
+      }
+      setTimeout(() => setSuccessMsg(''), 3500);
+      setDeleteDialog((prev) => ({ ...prev, isOpen: false, isLoading: false }));
+    } catch (err) {
+      console.error('Failed to delete item:', err);
+      setError(`Failed to delete: ${err.message || 'Unknown error'}`);
+      setDeleteDialog((prev) => ({ ...prev, isLoading: false }));
     }
+  };
+
+  const handleCloseDeleteDialog = () => {
+    if (deleteDialog.isLoading) return;
+    setDeleteDialog((prev) => ({ ...prev, isOpen: false }));
   };
 
   const displayedInquiries = inquiries.filter(
@@ -1729,6 +1805,18 @@ export default function OwnerStudioPage() {
           </div>
         </div>
       )}
+      {/* Reusable Luxury Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={deleteDialog.isOpen}
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleConfirmDelete}
+        title={deleteDialog.title}
+        itemName={deleteDialog.itemName}
+        itemType={deleteDialog.itemType}
+        thumbnailUrl={deleteDialog.thumbnailUrl}
+        isLoading={deleteDialog.isLoading}
+        warningMessage={deleteDialog.warningMessage}
+      />
     </div>
   );
 }
