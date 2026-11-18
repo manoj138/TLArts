@@ -41,6 +41,10 @@ const artworkSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        cloudinaryPublicId: {
+            type: String,
+            default: ""
+        },
         instagramPostUrl: {
             type: String,
             default: ""

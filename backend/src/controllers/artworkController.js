@@ -1,5 +1,6 @@
 const Artwork = require("../modals/Artwork");
 const { deleteUploadedFiles } = require("../helpers/deleteUploadFiles");
+const { uploadToCloudinary, deleteFromCloudinary } = require("../config/cloudinary");
 const { handle200, handle201 } = require("../helpers/successHandler");
 const { handle404, handle422, handle500, formatMongooseError } = require("../helpers/errorHandler");
 
@@ -91,8 +92,17 @@ const createArtwork = async (req, res) => {
         }
 
         let imageUrl = req.body.imageUrl;
+        let cloudinaryPublicId = "";
+
         if (req.file) {
-            imageUrl = `/uploads/artworks/${req.file.filename}`;
+            try {
+                const cloudResult = await uploadToCloudinary(req.file.path, "tlarts/artworks", "image");
+                imageUrl = cloudResult.secure_url;
+                cloudinaryPublicId = cloudResult.public_id;
+            } catch (cloudErr) {
+                console.warn("Cloudinary upload notice (fallback to local):", cloudErr.message);
+                imageUrl = `/uploads/artworks/${req.file.filename}`;
+            }
         }
 
         if (!imageUrl) {
@@ -112,6 +122,7 @@ const createArtwork = async (req, res) => {
             year: year ? year.toString().trim() : new Date().getFullYear().toString(),
             description: description ? description.trim() : "",
             imageUrl: imageUrl,
+            cloudinaryPublicId,
             instagramPostUrl: instagramPostUrl ? instagramPostUrl.trim() : "",
             isFeatured: isFeatured === true || isFeatured === "true",
             isForSale: isForSale === true || isForSale === "true",
@@ -141,10 +152,21 @@ const updateArtwork = async (req, res) => {
 
         // Handle uploaded new file replacement
         if (req.file) {
-            if (artwork.imageUrl && artwork.imageUrl.startsWith("/uploads/")) {
+            // Delete old media from Cloudinary if exists
+            if (artwork.cloudinaryPublicId) {
+                await deleteFromCloudinary(artwork.cloudinaryPublicId, "image");
+            } else if (artwork.imageUrl && artwork.imageUrl.startsWith("/uploads/")) {
                 deleteUploadedFiles(artwork.imageUrl);
             }
-            updateData.imageUrl = `/uploads/artworks/${req.file.filename}`;
+
+            try {
+                const cloudResult = await uploadToCloudinary(req.file.path, "tlarts/artworks", "image");
+                updateData.imageUrl = cloudResult.secure_url;
+                updateData.cloudinaryPublicId = cloudResult.public_id;
+            } catch (cloudErr) {
+                console.warn("Cloudinary update notice (fallback to local):", cloudErr.message);
+                updateData.imageUrl = `/uploads/artworks/${req.file.filename}`;
+            }
         }
 
         if (typeof updateData.isFeatured !== "undefined") {
@@ -187,8 +209,10 @@ const deleteArtwork = async (req, res) => {
             return handle404(res, "Artwork not found.");
         }
 
-        // Delete associated image file from disk if it was an uploaded file
-        if (artwork.imageUrl && artwork.imageUrl.startsWith("/uploads/")) {
+        // Delete from Cloudinary if available
+        if (artwork.cloudinaryPublicId) {
+            await deleteFromCloudinary(artwork.cloudinaryPublicId, "image");
+        } else if (artwork.imageUrl && artwork.imageUrl.startsWith("/uploads/")) {
             deleteUploadedFiles(artwork.imageUrl);
         }
 

@@ -1,5 +1,6 @@
 const Inquiry = require("../modals/Inquiry");
 const { deleteUploadedFiles } = require("../helpers/deleteUploadFiles");
+const { uploadToCloudinary, deleteFromCloudinary } = require("../config/cloudinary");
 const { handle200, handle201 } = require("../helpers/successHandler");
 const { handle404, handle422, handle500, formatMongooseError } = require("../helpers/errorHandler");
 
@@ -18,11 +19,19 @@ const createInquiry = async (req, res) => {
         }
 
         let referencePhotoUrl = "";
+        let cloudinaryPublicId = "";
         let fileName = "";
 
         if (req.file) {
-            referencePhotoUrl = `/uploads/inquiries/${req.file.filename}`;
             fileName = req.file.originalname;
+            try {
+                const cloudResult = await uploadToCloudinary(req.file.path, "tlarts/inquiries", "image");
+                referencePhotoUrl = cloudResult.secure_url;
+                cloudinaryPublicId = cloudResult.public_id;
+            } catch (cloudErr) {
+                console.warn("Cloudinary inquiry upload notice (fallback to local):", cloudErr.message);
+                referencePhotoUrl = `/uploads/inquiries/${req.file.filename}`;
+            }
         } else if (req.body.referencePhotoUrl) {
             referencePhotoUrl = req.body.referencePhotoUrl;
         }
@@ -34,6 +43,7 @@ const createInquiry = async (req, res) => {
             size: size ? size.trim() : "A3 (29.7 × 42.0 cm)",
             message: message ? message.trim() : "",
             referencePhotoUrl,
+            cloudinaryPublicId,
             fileName,
             status: "New"
         });
@@ -94,8 +104,10 @@ const deleteInquiry = async (req, res) => {
             return handle404(res, "Inquiry not found.");
         }
 
-        // Delete reference photo if stored locally
-        if (inquiry.referencePhotoUrl && inquiry.referencePhotoUrl.startsWith("/uploads/")) {
+        // Delete reference photo from Cloudinary or local disk
+        if (inquiry.cloudinaryPublicId) {
+            await deleteFromCloudinary(inquiry.cloudinaryPublicId, "image");
+        } else if (inquiry.referencePhotoUrl && inquiry.referencePhotoUrl.startsWith("/uploads/")) {
             deleteUploadedFiles(inquiry.referencePhotoUrl);
         }
 

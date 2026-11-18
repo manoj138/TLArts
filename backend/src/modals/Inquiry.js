@@ -32,6 +32,10 @@ const inquirySchema = new mongoose.Schema(
             type: String,
             default: "",
         },
+        cloudinaryPublicId: {
+            type: String,
+            default: "",
+        },
         fileName: {
             type: String,
             default: "",
