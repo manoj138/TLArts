@@ -13,56 +13,76 @@ const FRAME_FILES = [
 
 const BASE_PATH = '/scrolling_images/gemini_generated_video_4f6543f0_gwr_video_mvp_frames/';
 const TOTAL_FRAMES = FRAME_FILES.length;
+const MAX_HERO_WHEEL_STEP = 90;
+const IDLE_NUDGE_DELAY_MS = 3000;
+
+const isFrameReady = (src) => {
+  if (!src) return false;
+  if (typeof ImageBitmap !== 'undefined' && src instanceof ImageBitmap) {
+    return src.width > 0 && src.height > 0;
+  }
+  return Boolean(src.complete && src.naturalWidth > 0);
+};
 
 export default function HeroScroll() {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
+  const ctxRef = useRef(null);
   const imagesRef = useRef([]);
-  const currentFrameRef = useRef(0);
+  const decodedRef = useRef([]);
+  const currentFrameRef = useRef(-1);
+  const targetProgressRef = useRef(0);
+  const smoothProgressRef = useRef(0);
+  const activeChapterRef = useRef(0);
   const rafIdRef = useRef(null);
 
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [displayFrame, setDisplayFrame] = useState(1);
+  const [activeChapter, setActiveChapter] = useState(0);
+  const [isIdleNudge, setIsIdleNudge] = useState(false);
 
   // High-performance canvas draw with 'cover' aspect ratio preservation
   const renderFrame = useCallback((frameIndex) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    if (!ctxRef.current) {
+      ctxRef.current = canvas.getContext('2d', { alpha: false });
+    }
+    const ctx = ctxRef.current;
     if (!ctx) return;
 
     // Ensure canvas dimensions are initialized
     if (canvas.width === 0 || canvas.height === 0) {
       const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       canvas.width = Math.floor((rect.width || window.innerWidth) * dpr);
       canvas.height = Math.floor((rect.height || window.innerHeight) * dpr);
     }
 
-    // Retrieve target image or nearest loaded image
-    let img = imagesRef.current[frameIndex];
-    if (!img || !img.complete || img.naturalWidth === 0) {
+    const pickReady = (idx) => {
+      const bmp = decodedRef.current[idx];
+      if (isFrameReady(bmp)) return bmp;
+      const img = imagesRef.current[idx];
+      if (isFrameReady(img)) return img;
+      return null;
+    };
+
+    // Retrieve target frame (preferring pre-decoded ImageBitmap) or nearest loaded frame
+    let frame = pickReady(frameIndex);
+    if (!frame) {
       for (let delta = 1; delta < TOTAL_FRAMES; delta++) {
-        const prev = imagesRef.current[frameIndex - delta];
-        if (prev && prev.complete && prev.naturalWidth > 0) {
-          img = prev;
-          break;
-        }
-        const next = imagesRef.current[frameIndex + delta];
-        if (next && next.complete && next.naturalWidth > 0) {
-          img = next;
-          break;
-        }
+        frame = pickReady(frameIndex - delta) || pickReady(frameIndex + delta);
+        if (frame) break;
       }
     }
 
-    if (!img || !img.complete || img.naturalWidth === 0) return;
+    if (!frame) return;
 
     const cw = canvas.width;
     const ch = canvas.height;
+    const srcW = frame.naturalWidth || frame.width;
+    const srcH = frame.naturalHeight || frame.height;
 
-    const imgRatio = img.naturalWidth / img.naturalHeight;
+    const imgRatio = srcW / srcH;
     const canvasRatio = cw / ch;
 
     let renderW, renderH, offsetX, offsetY;
@@ -79,37 +99,60 @@ export default function HeroScroll() {
       offsetY = 0;
     }
 
-    ctx.clearRect(0, 0, cw, ch);
-    ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
+    ctx.drawImage(frame, offsetX, offsetY, renderW, renderH);
     currentFrameRef.current = frameIndex;
-    setDisplayFrame(frameIndex + 1);
   }, []);
 
-  // Resize canvas according to devicePixelRatio for retina/4K sharpness
+  // Resize canvas according to capped devicePixelRatio for sharp yet fast rendering
   const resizeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
 
     canvas.width = Math.floor(rect.width * dpr);
     canvas.height = Math.floor(rect.height * dpr);
 
-    renderFrame(currentFrameRef.current);
+    renderFrame(Math.max(0, currentFrameRef.current));
   }, [renderFrame]);
 
-  // Preload all frames in background
+  // Preload & pre-decode all frames in background to eliminate scroll-time JPEG decode stutter
   useEffect(() => {
+    let isMounted = true;
     const images = [];
+    const bitmaps = new Array(TOTAL_FRAMES).fill(null);
+    decodedRef.current = bitmaps;
 
     FRAME_FILES.forEach((fileName, index) => {
       const img = new Image();
+      img.decoding = 'async';
       img.src = `${BASE_PATH}${fileName}`;
 
       img.onload = () => {
-        if (index === currentFrameRef.current || index === 0) {
-          renderFrame(currentFrameRef.current);
+        if (!isMounted) return;
+
+        if (index === Math.max(0, currentFrameRef.current) || index === 0) {
+          renderFrame(Math.max(0, currentFrameRef.current));
+        }
+
+        if (typeof createImageBitmap === 'function') {
+          createImageBitmap(img)
+            .then((bmp) => {
+              if (!isMounted) {
+                bmp.close?.();
+                return;
+              }
+              bitmaps[index] = bmp;
+              if (index === Math.max(0, currentFrameRef.current)) {
+                renderFrame(index);
+              }
+            })
+            .catch(() => {
+              // Keep HTMLImageElement fallback
+            });
+        } else if (typeof img.decode === 'function') {
+          img.decode().catch(() => {});
         }
       };
 
@@ -126,13 +169,51 @@ export default function HeroScroll() {
     resizeCanvas();
 
     return () => {
+      isMounted = false;
       window.removeEventListener('resize', resizeCanvas);
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+      bitmaps.forEach((bmp) => bmp?.close?.());
+      decodedRef.current = [];
     };
   }, [renderFrame, resizeCanvas]);
 
-  // Scroll event handling to update frames
+  // Smooth rAF lerp loop + gentle wheel pacing while inside hero sticky track
   useEffect(() => {
+    const step = () => {
+      const target = targetProgressRef.current;
+      const current = smoothProgressRef.current;
+      const diff = target - current;
+
+      const next = Math.abs(diff) < 0.0005 ? target : current + diff * 0.16;
+      smoothProgressRef.current = next;
+
+      const targetFrame = Math.min(
+        TOTAL_FRAMES - 1,
+        Math.round(next * (TOTAL_FRAMES - 1))
+      );
+
+      if (targetFrame !== currentFrameRef.current) {
+        renderFrame(targetFrame);
+      }
+
+      const nextChapter = next < 0.34 ? 0 : next < 0.68 ? 1 : 2;
+      if (nextChapter !== activeChapterRef.current) {
+        activeChapterRef.current = nextChapter;
+        setActiveChapter(nextChapter);
+      }
+
+      if (Math.abs(target - next) > 0.0005) {
+        rafIdRef.current = requestAnimationFrame(step);
+      } else {
+        rafIdRef.current = null;
+      }
+    };
+
+    const startLoop = () => {
+      if (rafIdRef.current === null) {
+        rafIdRef.current = requestAnimationFrame(step);
+      }
+    };
+
     const handleScroll = () => {
       if (!containerRef.current) return;
 
@@ -142,32 +223,84 @@ export default function HeroScroll() {
       if (scrollableDistance <= 0) return;
 
       const scrolled = -rect.top;
-      const rawProgress = scrolled / scrollableDistance;
-      const progress = Math.max(0, Math.min(1, rawProgress));
+      const progress = Math.max(0, Math.min(1, scrolled / scrollableDistance));
 
-      setScrollProgress(progress);
+      targetProgressRef.current = progress;
+      startLoop();
+    };
 
-      // Map progress to frame index
-      const targetFrame = Math.min(
-        TOTAL_FRAMES - 1,
-        Math.floor(progress * TOTAL_FRAMES)
-      );
+    const handleWheel = (e) => {
+      if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY) || !containerRef.current) {
+        return;
+      }
 
-      if (targetFrame !== currentFrameRef.current) {
-        if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
-        rafIdRef.current = requestAnimationFrame(() => {
-          renderFrame(targetFrame);
+      const rawDelta =
+        e.deltaMode === 1
+          ? e.deltaY * 32
+          : e.deltaMode === 2
+          ? e.deltaY * window.innerHeight
+          : e.deltaY;
+
+      if (Math.abs(rawDelta) <= MAX_HERO_WHEEL_STEP) return;
+
+      const rect = containerRef.current.getBoundingClientRect();
+      const scrollingDownInsideHero =
+        rawDelta > 0 && rect.top <= 1 && rect.bottom > window.innerHeight + 2;
+      const scrollingUpInsideHero =
+        rawDelta < 0 && rect.top < -2 && rect.bottom >= window.innerHeight - 1;
+
+      if (scrollingDownInsideHero || scrollingUpInsideHero) {
+        e.preventDefault();
+        window.scrollBy({
+          top: Math.sign(rawDelta) * MAX_HERO_WHEEL_STEP,
+          behavior: 'auto'
         });
       }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('wheel', handleWheel, { passive: false });
     handleScroll(); // Initial check
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('wheel', handleWheel);
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
     };
   }, [renderFrame]);
+
+  // Prompt user with a noticeable scroll nudge if they stay idle in Hero Chapters 1 or 2
+  useEffect(() => {
+    if (activeChapter >= 2) return;
+
+    let timerId = setTimeout(() => {
+      setIsIdleNudge(true);
+    }, IDLE_NUDGE_DELAY_MS);
+
+    const resetIdleTimer = () => {
+      setIsIdleNudge(false);
+      clearTimeout(timerId);
+      timerId = setTimeout(() => {
+        setIsIdleNudge(true);
+      }, IDLE_NUDGE_DELAY_MS);
+    };
+
+    window.addEventListener('scroll', resetIdleTimer, { passive: true });
+    window.addEventListener('wheel', resetIdleTimer, { passive: true });
+    window.addEventListener('touchstart', resetIdleTimer, { passive: true });
+    window.addEventListener('keydown', resetIdleTimer, { passive: true });
+
+    return () => {
+      clearTimeout(timerId);
+      window.removeEventListener('scroll', resetIdleTimer);
+      window.removeEventListener('wheel', resetIdleTimer);
+      window.removeEventListener('touchstart', resetIdleTimer);
+      window.removeEventListener('keydown', resetIdleTimer);
+    };
+  }, [activeChapter]);
 
   const scrollToNext = () => {
     if (containerRef.current) {
@@ -178,6 +311,20 @@ export default function HeroScroll() {
       });
     }
   };
+
+  const scrollToNextChapter = () => {
+    if (!containerRef.current) return;
+    const scrollableDistance = containerRef.current.offsetHeight - window.innerHeight;
+    if (scrollableDistance <= 0) return;
+
+    const targetRatio = activeChapter === 0 ? 0.45 : 0.85;
+    window.scrollTo({
+      top: containerRef.current.offsetTop + scrollableDistance * targetRatio,
+      behavior: 'smooth'
+    });
+  };
+
+  const showIdleNudge = isIdleNudge && activeChapter < 2;
 
   return (
     <section ref={containerRef} className="hero-scroll-track" id="hero">
@@ -193,12 +340,10 @@ export default function HeroScroll() {
 
         {/* Dynamic Story Overlays (Synced to Scroll Progress) */}
         <div className="hero-content-layer">
-          {/* Chapter 1: 0% to 30% scroll */}
+          {/* Chapter 1: 0% to 34% scroll */}
           <div
             className={`story-card ${
-              scrollProgress < 0.28
-                ? 'visible'
-                : 'hidden-up'
+              activeChapter === 0 ? 'visible' : 'hidden-up'
             }`}
           >
             <div className="badge-tagline">★ TUSHAR LOHAR STUDIO ★</div>
@@ -213,12 +358,12 @@ export default function HeroScroll() {
             </div>
           </div>
 
-          {/* Chapter 2: 32% to 68% scroll */}
+          {/* Chapter 2: 34% to 68% scroll */}
           <div
             className={`story-card ${
-              scrollProgress >= 0.32 && scrollProgress < 0.68
+              activeChapter === 1
                 ? 'visible'
-                : scrollProgress < 0.32
+                : activeChapter < 1
                 ? 'hidden-down'
                 : 'hidden-up'
             }`}
@@ -235,12 +380,10 @@ export default function HeroScroll() {
             </div>
           </div>
 
-          {/* Chapter 3: 72% to 100% scroll */}
+          {/* Chapter 3: 68% to 100% scroll */}
           <div
             className={`story-card ${
-              scrollProgress >= 0.72
-                ? 'visible'
-                : 'hidden-down'
+              activeChapter === 2 ? 'visible' : 'hidden-down'
             }`}
           >
             <div className="badge-tagline">⚡ DISCOVER THE PORTFOLIO ⚡</div>
@@ -269,12 +412,17 @@ export default function HeroScroll() {
         </div>
 
         {/* Bottom HUD: Scroll Indicator */}
-        <footer className="hero-bottom-hud">
+        <footer className={`hero-bottom-hud ${activeChapter === 2 ? 'hud-hidden' : ''}`}>
           <div className="hud-center">
-            <div className="scroll-prompt">
+            <button
+              type="button"
+              onClick={scrollToNextChapter}
+              className={`scroll-prompt ${showIdleNudge ? 'idle-nudge' : ''}`}
+              aria-label="Scroll down to explore"
+            >
               <span>SCROLL TO EXPLORE</span>
-              <span>↓</span>
-            </div>
+              <span className="scroll-arrow" aria-hidden="true">↓</span>
+            </button>
           </div>
         </footer>
       </div>

@@ -1,8 +1,35 @@
+import { useRef, useEffect } from 'react';
 import { ArrowUp } from 'lucide-react';
 import InstagramIcon from '../common/InstagramIcon';
 import { ARTIST_INFO } from '../../data/artworks';
+import { useArtworks } from '../../context/ArtworkContext';
 
 export default function Footer() {
+  const { openStudio } = useArtworks();
+  const clickCountRef = useRef(0);
+  const clickTimerRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
+    };
+  }, []);
+
+  const handleSecretPencilClick = () => {
+    clickCountRef.current += 1;
+    clearTimeout(clickTimerRef.current);
+
+    if (clickCountRef.current >= 5) {
+      clickCountRef.current = 0;
+      openStudio();
+      return;
+    }
+
+    clickTimerRef.current = setTimeout(() => {
+      clickCountRef.current = 0;
+    }, 1800);
+  };
+
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -26,7 +53,14 @@ export default function Footer() {
               &ldquo;{ARTIST_INFO.tagline}&rdquo;
             </p>
             <p className="text-xs text-slate-500 leading-relaxed max-w-sm">
-              {ARTIST_INFO.bio}
+              {ARTIST_INFO.bio}{' '}
+              <span
+                onClick={handleSecretPencilClick}
+                className="select-none cursor-default inline-block"
+                aria-hidden="true"
+              >
+                ✎
+              </span>
             </p>
           </div>
 

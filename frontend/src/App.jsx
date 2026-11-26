@@ -34,7 +34,7 @@ function AppContent() {
 
   return (
     <div className="app-container">
-      {/* Editorial Fixed Navbar with 4-Click Secret Trigger */}
+      {/* Editorial Fixed Navbar */}
       <Navbar />
 
       {/* CRITICAL: Preserved Hero Scrolling Canvas Animation (Untouched) */}

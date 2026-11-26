@@ -1,35 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Menu, X, Feather } from 'lucide-react';
 import InstagramIcon from '../common/InstagramIcon';
 import { ARTIST_INFO } from '../../data/artworks';
-import { useArtworks } from '../../context/ArtworkContext';
 
 export default function Navbar() {
-  const { openStudio } = useArtworks();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // 4-click secret detector for owner authentication
-  const clickCountRef = useRef(0);
-  const clickTimerRef = useRef(null);
-
-  const handleBrandClick = (e) => {
-    clickCountRef.current += 1;
-    clearTimeout(clickTimerRef.current);
-
-    if (clickCountRef.current >= 4) {
-      e.preventDefault();
-      clickCountRef.current = 0;
-      openStudio();
-      return;
-    }
-
-    clickTimerRef.current = setTimeout(() => {
-      clickCountRef.current = 0;
-    }, 1400);
-
-    closeMenu();
-  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,11 +31,11 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 md:px-8 flex items-center justify-between">
-        {/* Brand Wordmark with 4-Click Owner Trigger */}
+        {/* Brand Wordmark */}
         <a
           href="#hero"
           className="flex flex-col text-left leading-none group cursor-pointer select-none"
-          onClick={handleBrandClick}
+          onClick={closeMenu}
           title="Tushar Arts — Realistic Sketch Artist"
         >
           <span className="font-['Bebas_Neue',sans-serif] text-2xl md:text-3xl tracking-widest font-black bg-gradient-to-r from-white via-white to-[#c5a059] bg-clip-text text-transparent group-hover:brightness-110 transition-all">
