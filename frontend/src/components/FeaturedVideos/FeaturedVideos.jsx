@@ -1,5 +1,16 @@
-import { useState, useRef } from 'react';
-import { Play, Pause, Volume2, VolumeX, Maximize2, ExternalLink, Film, X } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import {
+  Play,
+  Volume2,
+  VolumeX,
+  Maximize2,
+  ExternalLink,
+  Film,
+  X,
+  ChevronUp,
+  ChevronDown
+} from 'lucide-react';
 import InstagramIcon from '../common/InstagramIcon';
 import { useArtworks } from '../../context/ArtworkContext';
 
@@ -145,10 +156,299 @@ function VideoCard({ video, onOpenLightbox }) {
   );
 }
 
+// Full-Screen Instagram-Style Vertical Reel Viewer Modal
+function ReelLightboxModal({
+  video,
+  currentIndex,
+  totalCount,
+  isMuted,
+  onToggleMute,
+  onPrev,
+  onNext,
+  onClose
+}) {
+  const modalVideoRef = useRef(null);
+  const touchStartYRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const vid = modalVideoRef.current;
+    if (!vid) return;
+
+    vid.muted = isMuted;
+    const playPromise = vid.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => {
+        // Fallback to muted autoplay if browser blocks sound
+        vid.muted = true;
+        onToggleMute(true);
+        vid.play().catch(() => setIsPlaying(false));
+      });
+    }
+  }, [isMuted, onToggleMute]);
+
+  const togglePlayPause = (e) => {
+    e?.stopPropagation();
+    const vid = modalVideoRef.current;
+    if (!vid) return;
+    if (vid.paused) {
+      vid.play().then(() => setIsPlaying(true)).catch(() => {});
+    } else {
+      vid.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    const vid = modalVideoRef.current;
+    if (!vid || !vid.duration) return;
+    setProgress((vid.currentTime / vid.duration) * 100);
+  };
+
+  const handleSeek = (e) => {
+    e.stopPropagation();
+    const vid = modalVideoRef.current;
+    if (!vid || !vid.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    vid.currentTime = ratio * vid.duration;
+    setProgress(ratio * 100);
+  };
+
+  const handleTouchStart = (e) => {
+    touchStartYRef.current = e.touches[0]?.clientY ?? null;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartYRef.current === null || totalCount <= 1) return;
+    const endY = e.changedTouches[0]?.clientY ?? touchStartYRef.current;
+    const deltaY = touchStartYRef.current - endY;
+    touchStartYRef.current = null;
+
+    if (deltaY > 55) {
+      onNext();
+    } else if (deltaY < -55) {
+      onPrev();
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center sm:p-4 animate-in fade-in duration-200"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={video.title || 'Studio Reel'}
+    >
+      {/* Reel Frame: True Fullscreen (100vw x 100dvh) on Mobile, Vertical 9:16 Theater on Desktop */}
+      <div
+        className="relative w-full h-[100dvh] sm:h-[92dvh] sm:w-auto sm:aspect-[9/16] sm:max-w-[95vw] bg-black sm:rounded-2xl sm:border sm:border-white/15 overflow-hidden shadow-2xl shadow-black select-none"
+        onClick={togglePlayPause}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <video
+          ref={modalVideoRef}
+          src={video.videoUrl}
+          poster={video.thumbnailUrl || undefined}
+          autoPlay
+          loop
+          playsInline
+          muted={isMuted}
+          onTimeUpdate={handleTimeUpdate}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          className="w-full h-full object-cover"
+        />
+
+        {/* Top Gradient Overlay & Controls */}
+        <div
+          className="absolute inset-x-0 top-0 z-20 px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))] sm:p-5 bg-gradient-to-b from-black/80 via-black/35 to-transparent flex items-center justify-between gap-3"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="inline-flex items-center gap-1.5 bg-black/60 border border-[#c5a059]/40 text-[#e8c985] font-['Space_Grotesk',monospace] text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-full truncate">
+              <InstagramIcon size={11} />
+              <span>@artist_tushar_02</span>
+            </span>
+            {totalCount > 1 && (
+              <span className="bg-black/60 border border-white/15 text-slate-300 font-mono text-[10px] px-2 py-1 rounded-full shrink-0">
+                {currentIndex + 1}/{totalCount}
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => onToggleMute(!isMuted)}
+              className="w-9 h-9 rounded-full bg-black/60 hover:bg-[#c5a059] border border-white/20 hover:border-[#c5a059] text-white hover:text-black flex items-center justify-center transition-all cursor-pointer"
+              title={isMuted ? 'Unmute Reel' : 'Mute Reel'}
+              aria-label={isMuted ? 'Unmute Reel' : 'Mute Reel'}
+            >
+              {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-9 h-9 rounded-full bg-black/60 hover:bg-[#c5a059] border border-white/20 hover:border-[#c5a059] text-white hover:text-black flex items-center justify-center transition-all cursor-pointer"
+              title="Close Reel"
+              aria-label="Close Reel"
+            >
+              <X size={17} />
+            </button>
+          </div>
+        </div>
+
+        {/* Center Play Indicator when Paused */}
+        {!isPlaying && (
+          <button
+            type="button"
+            onClick={togglePlayPause}
+            className="absolute inset-0 m-auto z-20 w-16 h-16 rounded-full bg-black/65 border border-[#c5a059]/60 text-white flex items-center justify-center shadow-2xl cursor-pointer animate-in zoom-in-90 duration-150"
+            aria-label="Play Reel"
+          >
+            <Play size={26} className="ml-1 fill-current" />
+          </button>
+        )}
+
+        {/* Right-side Prev/Next Reel Controls (when multiple reels exist) */}
+        {totalCount > 1 && (
+          <div
+            className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={onPrev}
+              className="w-9 h-9 rounded-full bg-black/55 hover:bg-[#c5a059] border border-white/20 text-white hover:text-black flex items-center justify-center transition-all cursor-pointer"
+              title="Previous Reel"
+              aria-label="Previous Reel"
+            >
+              <ChevronUp size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={onNext}
+              className="w-9 h-9 rounded-full bg-black/55 hover:bg-[#c5a059] border border-white/20 text-white hover:text-black flex items-center justify-center transition-all cursor-pointer"
+              title="Next Reel"
+              aria-label="Next Reel"
+            >
+              <ChevronDown size={18} />
+            </button>
+          </div>
+        )}
+
+        {/* Bottom Metadata Overlay & Progress Bar */}
+        <div
+          className="absolute inset-x-0 bottom-0 z-20 pt-16 pb-[max(1.25rem,env(safe-area-inset-bottom))] px-4 sm:p-5 sm:pt-16 bg-gradient-to-t from-black/95 via-black/60 to-transparent text-left space-y-3"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="space-y-1 pr-10">
+            <span className="font-['Space_Grotesk',monospace] text-[10px] text-[#c5a059] uppercase tracking-widest block">
+              {video.category || 'Timelapse'}
+            </span>
+            <h3 className="font-['Bebas_Neue',sans-serif] text-2xl sm:text-3xl text-white tracking-wide leading-none">
+              {video.title}
+            </h3>
+            {video.description && (
+              <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
+                {video.description}
+              </p>
+            )}
+          </div>
+
+          {video.instagramReelUrl && (
+            <a
+              href={video.instagramReelUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-[#e8c985] to-[#c5a059] text-black font-semibold text-xs py-2.5 px-4 rounded-xl shadow-lg cursor-pointer hover:brightness-110 transition-all"
+            >
+              <InstagramIcon size={14} />
+              <span>View on Instagram Reel</span>
+              <ExternalLink size={12} />
+            </a>
+          )}
+
+          {/* Slim Seekable Reel Progress Track */}
+          <div
+            onClick={handleSeek}
+            className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden cursor-pointer pt-0"
+            role="slider"
+            aria-label="Reel progress"
+            aria-valuenow={Math.round(progress)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
+            <div
+              className="h-full bg-gradient-to-r from-[#e8c985] to-[#c5a059] transition-[width] duration-100"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Main Video Showcase Component (4 or 5 videos in desktop row)
 export default function FeaturedVideos() {
   const { videos = [] } = useArtworks();
-  const [activeLightboxVideo, setActiveLightboxVideo] = useState(null);
+  const [activeLightboxIndex, setActiveLightboxIndex] = useState(null);
+  const [isModalMuted, setIsModalMuted] = useState(false);
+
+  const activeLightboxVideo =
+    activeLightboxIndex !== null && videos[activeLightboxIndex]
+      ? videos[activeLightboxIndex]
+      : null;
+
+  const handleOpenLightbox = (video) => {
+    const idx = videos.findIndex((v) => v.id === video.id);
+    setActiveLightboxIndex(idx >= 0 ? idx : 0);
+  };
+
+  const handlePrevReel = () => {
+    if (videos.length <= 1) return;
+    setActiveLightboxIndex((prev) => (prev - 1 + videos.length) % videos.length);
+  };
+
+  const handleNextReel = () => {
+    if (videos.length <= 1) return;
+    setActiveLightboxIndex((prev) => (prev + 1) % videos.length);
+  };
+
+  // Lock page scroll & handle Escape / Arrow keys while reel viewer is open
+  useEffect(() => {
+    if (activeLightboxIndex === null) return;
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setActiveLightboxIndex(null);
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setActiveLightboxIndex((prev) =>
+          prev === null || videos.length <= 1 ? prev : (prev - 1 + videos.length) % videos.length
+        );
+      } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        setActiveLightboxIndex((prev) =>
+          prev === null || videos.length <= 1 ? prev : (prev + 1) % videos.length
+        );
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [activeLightboxIndex, videos.length]);
 
   return (
     <section id="videos" className="py-20 sm:py-28 px-4 sm:px-6 md:px-10 bg-[#09090e] border-t border-white/5 relative overflow-hidden">
@@ -179,7 +479,7 @@ export default function FeaturedVideos() {
               <VideoCard
                 key={vid.id}
                 video={vid}
-                onOpenLightbox={(video) => setActiveLightboxVideo(video)}
+                onOpenLightbox={handleOpenLightbox}
               />
             ))}
           </div>
@@ -209,71 +509,22 @@ export default function FeaturedVideos() {
         )}
       </div>
 
-      {/* Fullscreen Video Theater Lightbox Modal */}
-      {activeLightboxVideo && (
-        <div
-          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-200"
-          onClick={() => setActiveLightboxVideo(null)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div
-            className="relative bg-[#0d0d14] border border-[#c5a059]/40 rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl shadow-black animate-in zoom-in-95 duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close Button */}
-            <button
-              type="button"
-              className="absolute top-4 right-4 z-30 bg-black/70 hover:bg-[#c5a059] border border-white/20 hover:border-[#c5a059] text-white hover:text-black p-2 rounded-full cursor-pointer transition-all"
-              onClick={() => setActiveLightboxVideo(null)}
-              aria-label="Close Video"
-            >
-              <X size={18} />
-            </button>
-
-            {/* Lightbox Video Player */}
-            <div className="relative aspect-video w-full bg-black flex items-center justify-center">
-              <video
-                src={activeLightboxVideo.videoUrl}
-                controls
-                autoPlay
-                playsInline
-                className="w-full h-full object-contain"
-              />
-            </div>
-
-            {/* Video Meta Info */}
-            <div className="p-6 md:p-8 text-left bg-gradient-to-t from-[#0a0a0f] to-[#12121c] border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <span className="font-['Space_Grotesk',monospace] text-xs text-[#c5a059] uppercase tracking-wider block mb-1">
-                  {activeLightboxVideo.category || 'Timelapse'}
-                </span>
-                <h3 className="font-['Bebas_Neue',sans-serif] text-3xl text-white tracking-wide">
-                  {activeLightboxVideo.title}
-                </h3>
-                {activeLightboxVideo.description && (
-                  <p className="text-xs md:text-sm text-slate-300 mt-1 max-w-xl">
-                    {activeLightboxVideo.description}
-                  </p>
-                )}
-              </div>
-
-              {activeLightboxVideo.instagramReelUrl && (
-                <a
-                  href={activeLightboxVideo.instagramReelUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 bg-gradient-to-r from-[#e8c985] to-[#c5a059] text-black font-semibold text-xs py-2.5 px-4 rounded-xl shadow-lg shrink-0 cursor-pointer hover:brightness-110 transition-all"
-                >
-                  <InstagramIcon size={14} />
-                  <span>View on Instagram Reel</span>
-                  <ExternalLink size={12} />
-                </a>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Fullscreen Instagram-Style Reel Lightbox Modal (Portaled to document.body above Navbar) */}
+      {activeLightboxVideo &&
+        createPortal(
+          <ReelLightboxModal
+            key={activeLightboxVideo.id}
+            video={activeLightboxVideo}
+            currentIndex={activeLightboxIndex}
+            totalCount={videos.length}
+            isMuted={isModalMuted}
+            onToggleMute={setIsModalMuted}
+            onPrev={handlePrevReel}
+            onNext={handleNextReel}
+            onClose={() => setActiveLightboxIndex(null)}
+          />,
+          document.body
+        )}
     </section>
   );
 }
