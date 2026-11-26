@@ -648,54 +648,60 @@ export default function OwnerStudioPage() {
   return (
     <div className="min-h-screen bg-[#06060a] text-slate-200 flex flex-col selection:bg-[#c5a059] selection:text-black">
       {/* Top Studio Header Bar */}
-      <header className="sticky top-0 z-40 bg-[#09090f]/95 border-b border-white/10 backdrop-blur-md px-4 sm:px-6 md:px-12 py-3 shadow-2xl">
-        <div className="max-w-7xl mx-auto flex flex-wrap lg:flex-nowrap items-center justify-between gap-3 lg:gap-4">
-          {/* Brand Title */}
-          <div className="order-1 flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 shrink-0 rounded-xl bg-gradient-to-br from-[#e8c985] to-[#c5a059] text-black flex items-center justify-center font-bold shadow-md shadow-[#c5a059]/20">
-              <ShieldCheck size={18} />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-['Bebas_Neue',sans-serif] text-xl sm:text-2xl tracking-wider text-white truncate leading-none">
-                  TUSHAR ARTS STUDIO
+      <header className="sticky top-0 z-40 bg-[#09090f]/95 border-b border-white/10 backdrop-blur-md px-3 sm:px-6 md:px-12 py-3 shadow-2xl">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 lg:gap-4">
+          {/* Top Row on Mobile (Brand + Logout); dissolved on Desktop via lg:contents */}
+          <div className="flex items-center justify-between gap-2 w-full lg:contents">
+            {/* Brand Title */}
+            <div className="flex items-center gap-2.5 sm:gap-3 flex-1 lg:flex-initial min-w-0 lg:order-1">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 shrink-0 rounded-xl bg-gradient-to-br from-[#e8c985] to-[#c5a059] text-black flex items-center justify-center font-bold shadow-md shadow-[#c5a059]/20">
+                <ShieldCheck size={18} />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-['Bebas_Neue',sans-serif] text-xl sm:text-2xl tracking-wider text-white truncate leading-none">
+                    TUSHAR ARTS STUDIO
+                  </span>
+                  <span className="hidden sm:inline-block bg-[#c5a059]/15 border border-[#c5a059]/40 text-[#c5a059] text-[10px] font-mono px-2 py-0.5 rounded-full uppercase whitespace-nowrap">
+                    CMS DASHBOARD
+                  </span>
+                </div>
+                <span className="sm:hidden text-[10px] font-mono text-slate-500 block leading-tight truncate">
+                  @ARTIST_TUSHAR_02
                 </span>
-                <span className="hidden sm:inline-block bg-[#c5a059]/15 border border-[#c5a059]/40 text-[#c5a059] text-[10px] font-mono px-2 py-0.5 rounded-full uppercase whitespace-nowrap">
-                  CMS DASHBOARD
+                <span className="hidden sm:block text-[10px] font-mono text-slate-500 leading-tight truncate">
+                  ARTIST: TUSHAR LOHAR (@ARTIST_TUSHAR_02)
                 </span>
               </div>
-              <span className="text-[10px] font-mono text-slate-500 block leading-tight truncate">
-                ARTIST: TUSHAR LOHAR (@ARTIST_TUSHAR_02)
-              </span>
+            </div>
+
+            {/* Right: Logout */}
+            <div className="flex items-center shrink-0 lg:order-3">
+              <button
+                type="button"
+                onClick={logoutOwner}
+                className="flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg border border-rose-500/20 transition-colors cursor-pointer whitespace-nowrap"
+                title="Logout from Studio"
+              >
+                <LogOut size={14} className="shrink-0" />
+                <span>Logout</span>
+              </button>
             </div>
           </div>
 
-          {/* Right: Logout (Top-right on mobile & desktop) */}
-          <div className="order-2 lg:order-3 flex items-center shrink-0">
-            <button
-              type="button"
-              onClick={logoutOwner}
-              className="flex items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-lg border border-rose-500/20 transition-colors cursor-pointer whitespace-nowrap"
-              title="Logout from Studio"
-            >
-              <LogOut size={14} className="shrink-0" />
-              <span>Logout</span>
-            </button>
-          </div>
-
-          {/* Center Tabs: Full-width 3-col grid on mobile, inline on desktop */}
-          <div className="order-3 lg:order-2 w-full lg:w-auto grid grid-cols-3 lg:flex items-center gap-1 sm:gap-1.5 bg-[#141420] p-1 rounded-xl border border-white/10">
+          {/* Center Tabs: Full-width adaptive flex on mobile, centered on desktop */}
+          <div className="w-full lg:w-auto lg:order-2 flex items-center justify-between lg:justify-start gap-1 sm:gap-1.5 bg-[#141420] p-1 rounded-xl border border-white/10">
             <button
               type="button"
               onClick={() => setActiveStudioTab('artworks')}
-              className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 lg:py-1.5 px-2 sm:px-3.5 rounded-lg text-[11px] sm:text-xs font-semibold font-['Space_Grotesk',monospace] transition-all cursor-pointer whitespace-nowrap min-w-0 ${
+              className={`flex-auto lg:flex-none flex items-center justify-center gap-1 sm:gap-2 py-2 lg:py-1.5 px-2 sm:px-3.5 rounded-lg text-[11px] sm:text-xs font-semibold font-['Space_Grotesk',monospace] transition-all cursor-pointer whitespace-nowrap ${
                 activeStudioTab === 'artworks'
                   ? 'bg-gradient-to-r from-[#e8c985] to-[#c5a059] text-black shadow-md'
                   : 'text-slate-400 hover:text-white hover:bg-white/5'
               }`}
             >
-              <Layers size={14} className="shrink-0" />
-              <span className="truncate">Sketches</span>
+              <Layers size={13} className="shrink-0 sm:w-[14px] sm:h-[14px]" />
+              <span>Sketches</span>
               <span
                 className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono leading-none shrink-0 ${
                   activeStudioTab === 'artworks' ? 'bg-black/20 text-black' : 'bg-white/10 text-slate-400'
@@ -711,14 +717,14 @@ export default function OwnerStudioPage() {
                 setActiveStudioTab('videos');
                 refreshVideos();
               }}
-              className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 lg:py-1.5 px-2 sm:px-3.5 rounded-lg text-[11px] sm:text-xs font-semibold font-['Space_Grotesk',monospace] transition-all cursor-pointer whitespace-nowrap min-w-0 ${
+              className={`flex-auto lg:flex-none flex items-center justify-center gap-1 sm:gap-2 py-2 lg:py-1.5 px-2 sm:px-3.5 rounded-lg text-[11px] sm:text-xs font-semibold font-['Space_Grotesk',monospace] transition-all cursor-pointer whitespace-nowrap ${
                 activeStudioTab === 'videos'
                   ? 'bg-gradient-to-r from-[#e8c985] to-[#c5a059] text-black shadow-md'
                   : 'text-slate-400 hover:text-white hover:bg-white/5'
               }`}
             >
-              <VideoIcon size={14} className="shrink-0" />
-              <span className="sm:hidden truncate">Videos</span>
+              <VideoIcon size={13} className="shrink-0 sm:w-[14px] sm:h-[14px]" />
+              <span className="sm:hidden">Videos</span>
               <span className="hidden sm:inline">Studio Videos</span>
               <span
                 className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono leading-none shrink-0 ${
@@ -735,14 +741,14 @@ export default function OwnerStudioPage() {
                 setActiveStudioTab('inquiries');
                 loadInquiries();
               }}
-              className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 lg:py-1.5 px-2 sm:px-3.5 rounded-lg text-[11px] sm:text-xs font-semibold font-['Space_Grotesk',monospace] transition-all cursor-pointer relative whitespace-nowrap min-w-0 ${
+              className={`flex-auto lg:flex-none flex items-center justify-center gap-1 sm:gap-2 py-2 lg:py-1.5 px-2 sm:px-3.5 rounded-lg text-[11px] sm:text-xs font-semibold font-['Space_Grotesk',monospace] transition-all cursor-pointer relative whitespace-nowrap ${
                 activeStudioTab === 'inquiries'
                   ? 'bg-gradient-to-r from-[#e8c985] to-[#c5a059] text-black shadow-md'
                   : 'text-slate-400 hover:text-white hover:bg-white/5'
               }`}
             >
-              <Inbox size={14} className="shrink-0" />
-              <span className="sm:hidden truncate">Orders</span>
+              <Inbox size={13} className="shrink-0 sm:w-[14px] sm:h-[14px]" />
+              <span className="sm:hidden">Orders</span>
               <span className="hidden sm:inline">Commission Orders</span>
               {newInquiryCount > 0 ? (
                 <span className="bg-rose-500 text-white font-bold text-[9px] px-1.5 py-0.5 rounded-full animate-pulse whitespace-nowrap shrink-0 leading-none">
