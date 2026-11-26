@@ -21,8 +21,6 @@ export default function HeroScroll() {
   const currentFrameRef = useRef(0);
   const rafIdRef = useRef(null);
 
-  const [loadedCount, setLoadedCount] = useState(0);
-  const [isReady, setIsReady] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [displayFrame, setDisplayFrame] = useState(1);
 
@@ -101,9 +99,8 @@ export default function HeroScroll() {
     renderFrame(currentFrameRef.current);
   }, [renderFrame]);
 
-  // Preload all 35 frames in background
+  // Preload all frames in background
   useEffect(() => {
-    let loaded = 0;
     const images = [];
 
     FRAME_FILES.forEach((fileName, index) => {
@@ -111,22 +108,13 @@ export default function HeroScroll() {
       img.src = `${BASE_PATH}${fileName}`;
 
       img.onload = () => {
-        loaded++;
-        setLoadedCount(loaded);
-        if (index === 0) {
-          // Render the very first frame immediately
-          setIsReady(true);
-          renderFrame(0);
-        }
-        if (loaded === TOTAL_FRAMES) {
-          setIsReady(true);
+        if (index === currentFrameRef.current || index === 0) {
+          renderFrame(currentFrameRef.current);
         }
       };
 
       img.onerror = () => {
         console.warn(`Could not load frame: ${fileName}`);
-        loaded++;
-        setLoadedCount(loaded);
       };
 
       images.push(img);
@@ -191,8 +179,6 @@ export default function HeroScroll() {
     }
   };
 
-  const loadPercent = Math.round((loadedCount / TOTAL_FRAMES) * 100);
-
   return (
     <section ref={containerRef} className="hero-scroll-track" id="hero">
       {/* Sticky Frame: Pins at top during the scroll duration */}
@@ -204,22 +190,6 @@ export default function HeroScroll() {
         <div className="hero-vignette" />
         <div className="hero-scanlines" />
         <div className="hero-glow-ambient" />
-
-        {/* Preloader Overlay (disappears smoothly once frame 1 is ready) */}
-        {!isReady && (
-          <div className="hero-loader-overlay">
-            <h2 className="loader-title">TUSHAR ARTS</h2>
-            <div className="loader-status">
-              LOADING TRAILER FRAMES... {loadPercent}%
-            </div>
-            <div className="loader-bar-bg">
-              <div
-                className="loader-bar-fill"
-                style={{ width: `${loadPercent}%` }}
-              />
-            </div>
-          </div>
-        )}
 
         {/* Dynamic Story Overlays (Synced to Scroll Progress) */}
         <div className="hero-content-layer">
