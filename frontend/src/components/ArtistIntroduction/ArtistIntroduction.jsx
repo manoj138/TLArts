@@ -11,7 +11,7 @@ export default function ArtistIntroduction() {
             THE ARTIST & STUDIO
           </span>
           <h2 className="font-['Bebas_Neue',sans-serif] text-5xl md:text-7xl tracking-wider text-white leading-none mb-4">
-            TUSHAR LOHAR <span className="bg-gradient-to-r from-[#e8c985] to-[#c5a059] bg-clip-text text-transparent">ARTS</span>
+            TUSHAR <span className="bg-gradient-to-r from-[#e8c985] to-[#c5a059] bg-clip-text text-transparent">ARTS</span>
           </h2>
           <p className="font-['Cinzel',serif] text-lg md:text-xl italic text-slate-400 max-w-2xl mx-auto">
             &ldquo;Every stroke tells a story, and every graphite layer captures a soul.&rdquo;
@@ -52,7 +52,7 @@ export default function ArtistIntroduction() {
             </h3>
 
             <p className="text-slate-300 text-base md:text-lg leading-relaxed">
-              Welcome to <strong className="text-white font-semibold">TLArts</strong>, the creative studio of sketch artist <strong className="text-white font-semibold">Tushar Lohar</strong>. 
+              Welcome to <strong className="text-white font-semibold">Tushar Arts</strong>, the creative studio of sketch artist <strong className="text-white font-semibold">Tushar Lohar</strong>. 
               Driven by a deep passion for the nuances of human emotion and realism, each artwork is meticulously hand-drawn using graphite and charcoal pencils.
             </p>
 

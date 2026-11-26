@@ -171,7 +171,7 @@ export default function SketchGallery({ onSelectArtwork }) {
                       {art.isForSale && !art.isSold && (
                         <a
                           href={`https://wa.me/919673400446?text=${encodeURIComponent(
-                            `🎨 *TLArts Inquiry*\nHello Tushar! I want to purchase your original sketch "${art.title}" (₹${(art.price || 0).toLocaleString('en-IN')}). Please share payment & shipping details.`
+                            `🎨 *Tushar Arts Inquiry*\nHello Tushar! I want to purchase your original sketch "${art.title}" (₹${(art.price || 0).toLocaleString('en-IN')}). Please share payment & shipping details.`
                           )}`}
                           target="_blank"
                           rel="noopener noreferrer"

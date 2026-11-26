@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import './HeroScroll.css';
 
 const FRAME_FILES = [
-  'frame_001.jpg', 'frame_002.jpg', 'frame_003.jpg', 'frame_004.jpg', 'frame_005.jpg',
+  
   'frame_006.jpg', 'frame_007.jpg', 'frame_008.jpg', 'frame_009.jpg', 'frame_010.jpg',
   'frame_011.jpg', 'frame_012.jpg', 'frame_013.jpg', 'frame_014.jpg', 'frame_015.jpg',
   'frame_016.jpg', 'frame_017.jpg', 'frame_018.jpg', 'frame_019.jpg', 'frame_020.jpg',
@@ -208,7 +208,7 @@ export default function HeroScroll() {
         {/* Preloader Overlay (disappears smoothly once frame 1 is ready) */}
         {!isReady && (
           <div className="hero-loader-overlay">
-            <h2 className="loader-title">TL ARTS</h2>
+            <h2 className="loader-title">TUSHAR ARTS</h2>
             <div className="loader-status">
               LOADING TRAILER FRAMES... {loadPercent}%
             </div>
@@ -231,8 +231,8 @@ export default function HeroScroll() {
                 : 'hidden-up'
             }`}
           >
-            <div className="badge-tagline">★ TUSHAR LOHAR ARTS ★</div>
-            <h1 className="gta-headline">TL ARTS</h1>
+            <div className="badge-tagline">★ TUSHAR LOHAR STUDIO ★</div>
+            <h1 className="gta-headline">TUSHAR ARTS</h1>
             <p className="story-description">
               EVERY STROKE TELLS A STORY. REALISTIC GRAPHITE & CHARCOAL PORTRAITS BY TUSHAR LOHAR.
             </p>
@@ -298,26 +298,12 @@ export default function HeroScroll() {
           </div>
         </div>
 
-        {/* Bottom HUD: Telemetry, Scroll Indicator & Progress Bar */}
+        {/* Bottom HUD: Scroll Indicator */}
         <footer className="hero-bottom-hud">
-          <div className="hud-left" />
-
           <div className="hud-center">
             <div className="scroll-prompt">
               <span>SCROLL TO EXPLORE</span>
               <span>↓</span>
-            </div>
-          </div>
-
-          <div className="hud-right">
-            <div className="progress-number">
-              {Math.round(scrollProgress * 100)}% COMPLETE
-            </div>
-            <div className="progress-track">
-              <div
-                className="progress-fill"
-                style={{ width: `${Math.round(scrollProgress * 100)}%` }}
-              />
             </div>
           </div>
         </footer>

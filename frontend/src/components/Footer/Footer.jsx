@@ -17,7 +17,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
           <div className="md:col-span-5 flex flex-col">
             <span className="font-['Bebas_Neue',sans-serif] text-5xl tracking-widest font-black bg-gradient-to-r from-white via-white to-[#c5a059] bg-clip-text text-transparent leading-none mb-1">
-              TLARTS
+              TUSHAR ARTS
             </span>
             <span className="font-['Space_Grotesk',monospace] text-xs tracking-widest text-[#c5a059] uppercase mb-3">
               {ARTIST_INFO.fullName}
@@ -65,7 +65,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="flex flex-col sm:flex-row justify-between items-center border-t border-white/5 pt-8 gap-4 text-xs font-['Space_Grotesk',monospace] text-slate-500">
           <div>
-            © {new Date().getFullYear()} {ARTIST_INFO.fullName} ({ARTIST_INFO.brandName}). Handcrafted with Graphite & Passion.
+            © {new Date().getFullYear()} {ARTIST_INFO.brandName} ({ARTIST_INFO.artistName}). Handcrafted with Graphite & Passion.
           </div>
 
           <button

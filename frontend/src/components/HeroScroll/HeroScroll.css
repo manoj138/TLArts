@@ -141,7 +141,7 @@
 
 .gta-headline {
   font-family: var(--font-display);
-  font-size: clamp(3.8rem, 9vw, 8.5rem);
+  font-size: clamp(3rem, 8.5vw, 8rem);
   font-weight: 900;
   line-height: 0.9;
   letter-spacing: 3px;
@@ -252,7 +252,7 @@
   right: 0;
   z-index: 10;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: flex-end;
   padding: 24px 48px;
   background: linear-gradient(0deg, rgba(3, 3, 6, 0.9) 0%, transparent 100%);
@@ -307,36 +307,6 @@
   50% { transform: translateY(5px); }
 }
 
-.hud-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-}
-
-.progress-number {
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: #ffffff;
-}
-
-.progress-track {
-  width: 140px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--gta-pink), var(--gta-orange), var(--gta-cyan));
-  border-radius: 2px;
-  transition: width 0.1s linear;
-}
-
 /* ==========================================================================
    PRELOADER OVERLAY
    ========================================================================== */
@@ -356,7 +326,7 @@
 
 .loader-title {
   font-family: var(--font-display);
-  font-size: 3rem;
+  font-size: clamp(2.2rem, 6vw, 3rem);
   letter-spacing: 4px;
   background: linear-gradient(135deg, #ffffff 30%, #ff7700 70%, #ff2a85 100%);
   -webkit-background-clip: text;

@@ -49,7 +49,7 @@ app.use('/api/videos', require('./src/routes/videoRoutes'));
 // 5. Root Health Check
 app.get('/', (req, res) => {
     res.json({
-        name: "TLArts - Tushar Lohar Arts API",
+        name: "Tushar Arts - Realistic Sketch Artist API",
         status: "Online",
         version: "1.0.0",
         timestamp: new Date().toISOString()
@@ -81,5 +81,5 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 1006;
 
 app.listen(PORT, () => {
-    console.log(`TLArts Server is running on http://localhost:${PORT}`);
+    console.log(`Tushar Arts Server is running on http://localhost:${PORT}`);
 });

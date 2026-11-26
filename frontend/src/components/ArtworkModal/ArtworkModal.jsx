@@ -129,7 +129,7 @@ export default function ArtworkModal({ artwork, onClose }) {
                   <>
                     <a
                       href={`https://wa.me/919673400446?text=${encodeURIComponent(
-                        `🎨 *TLArts — Original Artwork Purchase Inquiry*\n\nHello Tushar! I would like to purchase your authentic original artwork:\n\n• *Artwork Title:* "${artwork.title}"\n• *Medium:* ${artwork.medium}\n• *Dimensions:* ${artwork.dimensions}\n• *Listed Price:* ₹${(artwork.price || 0).toLocaleString('en-IN')}\n\nPlease share availability status, courier packaging details, and UPI/Bank payment methods.`
+                        `🎨 *Tushar Arts — Original Artwork Purchase Inquiry*\n\nHello Tushar! I would like to purchase your authentic original artwork:\n\n• *Artwork Title:* "${artwork.title}"\n• *Medium:* ${artwork.medium}\n• *Dimensions:* ${artwork.dimensions}\n• *Listed Price:* ₹${(artwork.price || 0).toLocaleString('en-IN')}\n\nPlease share availability status, courier packaging details, and UPI/Bank payment methods.`
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"

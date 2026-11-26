@@ -139,7 +139,7 @@ export default function OwnerAuthModal() {
 
         <div className="mt-5 pt-4 border-t border-white/5 text-center">
           <span className="font-['Space_Grotesk',monospace] text-[10px] text-slate-500 tracking-wider uppercase">
-            Default Passcode: TLARTS@02
+            Tushar Arts — Authorized Studio Access Only
           </span>
         </div>
       </div>

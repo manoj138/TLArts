@@ -59,7 +59,7 @@ function InquiryCard({ inquiry, onStatusChange, onDelete, onImageClick }) {
   const cleanPhone = inquiry.contact.replace(/[^\d+]/g, '');
   const waUrl = cleanPhone
     ? `https://wa.me/${cleanPhone.startsWith('+') ? cleanPhone.slice(1) : cleanPhone}?text=${encodeURIComponent(
-        `Hello ${inquiry.name}! This is artist Tushar Lohar (TLArts) regarding your ${inquiry.sketchType} (${inquiry.size}) portrait commission request.`
+        `Hello ${inquiry.name}! This is artist Tushar Lohar (Tushar Arts) regarding your ${inquiry.sketchType} (${inquiry.size}) portrait commission request.`
       )}`
     : null;
 
@@ -658,7 +658,7 @@ export default function OwnerStudioPage() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-['Bebas_Neue',sans-serif] text-2xl tracking-wider text-white">
-                  TLARTS STUDIO
+                  TUSHAR ARTS STUDIO
                 </span>
                 <span className="bg-[#c5a059]/15 border border-[#c5a059]/40 text-[#c5a059] text-[10px] font-mono px-2 py-0.5 rounded-full uppercase">
                   CMS DASHBOARD

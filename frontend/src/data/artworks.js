@@ -1,13 +1,13 @@
 /**
- * TLArts — Centralized Artwork Data Repository
+ * Tushar Arts — Centralized Artwork Data Repository
  * Artist: Tushar Lohar (@artist_tushar_02)
- * Brand: TLArts (Tushar Lohar Arts)
+ * Brand: Tushar Arts (Tushar Lohar Studio)
  * Instagram: https://www.instagram.com/artist_tushar_02/
  */
 
 export const ARTIST_INFO = {
-  brandName: 'TLArts',
-  fullName: 'Tushar Lohar Arts',
+  brandName: 'Tushar Arts',
+  fullName: 'Tushar Lohar Studio',
   artistName: 'Tushar Lohar',
   instagramUsername: '@artist_tushar_02',
   instagramUrl: 'https://www.instagram.com/artist_tushar_02/',

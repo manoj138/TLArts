@@ -93,7 +93,7 @@ export default function EnquirySection() {
       : '';
 
     const text = encodeURIComponent(
-      `🎨 *TLArts — New Custom Sketch Commission* 🎨\n────────────────────────────\n👋 _Hello Tushar!_\n\nI just submitted a custom sketch commission request on your website:\n\n👤 *Client Name:* *${formData.name?.trim() || 'Art Lover'}*\n📞 *Contact / Phone:* _${formData.contact?.trim()}_\n🖼️ *Sketch Type:* *${formData.sketchType}*\n📐 *Requested Size:* *${formData.size}*${hasPhotoText}${notesText}\n\n────────────────────────────\nPlease share pricing quotation, slot availability, and delivery timeline.\n\n_Looking forward to your response!_ ✨`
+      `🎨 *Tushar Arts — New Custom Sketch Commission* 🎨\n────────────────────────────\n👋 _Hello Tushar!_\n\nI just submitted a custom sketch commission request on your website:\n\n👤 *Client Name:* *${formData.name?.trim() || 'Art Lover'}*\n📞 *Contact / Phone:* _${formData.contact?.trim()}_\n🖼️ *Sketch Type:* *${formData.sketchType}*\n📐 *Requested Size:* *${formData.size}*${hasPhotoText}${notesText}\n\n────────────────────────────\nPlease share pricing quotation, slot availability, and delivery timeline.\n\n_Looking forward to your response!_ ✨`
     );
 
     return `https://wa.me/919673400446?text=${text}`;

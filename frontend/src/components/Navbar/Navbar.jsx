@@ -60,13 +60,13 @@ export default function Navbar() {
           href="#hero"
           className="flex flex-col text-left leading-none group cursor-pointer select-none"
           onClick={handleBrandClick}
-          title="TLArts - Tushar Lohar Arts"
+          title="Tushar Arts — Realistic Sketch Artist"
         >
           <span className="font-['Bebas_Neue',sans-serif] text-2xl md:text-3xl tracking-widest font-black bg-gradient-to-r from-white via-white to-[#c5a059] bg-clip-text text-transparent group-hover:brightness-110 transition-all">
-            <span className='text-[#ffc14d]'>TL</span> ARTS
+            <span className='text-[#ffc14d]'>TUSHAR</span> ARTS
           </span>
           <span className="font-['Space_Grotesk',monospace] text-[10px] tracking-widest text-[#c5a059] uppercase mt-0.5">
-            TUSHAR LOHAR ARTS
+            REALISTIC SKETCH STUDIO
           </span>
         </a>
 
