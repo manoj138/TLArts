@@ -10,7 +10,7 @@ import {
   X,
   ChevronUp,
   ChevronDown
-} from 'lucide-react';
+} from 'lucide-react'; 
 import InstagramIcon from '../common/InstagramIcon';
 import { useArtworks } from '../../context/ArtworkContext';
 
@@ -156,11 +156,12 @@ function VideoCard({ video, onOpenLightbox }) {
   );
 }
 
-// Full-Screen Instagram-Style Vertical Reel Viewer Modal
+// Full-Screen Instagram-Style Vertical Reel Viewer Modal (Positioned Cleanly Below Navbar)
 function ReelLightboxModal({
   video,
   currentIndex,
   totalCount,
+  navHeight,
   isMuted,
   onToggleMute,
   onPrev,
@@ -235,15 +236,16 @@ function ReelLightboxModal({
 
   return (
     <div
-      className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center sm:p-4 animate-in fade-in duration-200"
+      style={{ top: `${navHeight}px` }}
+      className="fixed inset-x-0 bottom-0 z-40 bg-black/95 backdrop-blur-md flex items-center justify-center sm:p-4 animate-in fade-in duration-200"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label={video.title || 'Studio Reel'}
     >
-      {/* Reel Frame: True Fullscreen (100vw x 100dvh) on Mobile, Vertical 9:16 Theater on Desktop */}
+      {/* Reel Frame: Full Available Height Below Navbar on Mobile, Vertical 9:16 Theater on Desktop */}
       <div
-        className="relative w-full h-[100dvh] sm:h-[92dvh] sm:w-auto sm:aspect-[9/16] sm:max-w-[95vw] bg-black sm:rounded-2xl sm:border sm:border-white/15 overflow-hidden shadow-2xl shadow-black select-none"
+        className="relative w-full h-full sm:h-[calc(100%-1rem)] sm:w-auto sm:aspect-[9/16] sm:max-w-[95vw] bg-black sm:rounded-2xl sm:border sm:border-white/15 overflow-hidden shadow-2xl shadow-black select-none"
         onClick={togglePlayPause}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -264,7 +266,7 @@ function ReelLightboxModal({
 
         {/* Top Gradient Overlay & Controls */}
         <div
-          className="absolute inset-x-0 top-0 z-20 px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))] sm:p-5 bg-gradient-to-b from-black/80 via-black/35 to-transparent flex items-center justify-between gap-3"
+          className="absolute inset-x-0 top-0 z-20 p-4 sm:p-5 bg-gradient-to-b from-black/80 via-black/35 to-transparent flex items-center justify-between gap-3"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center gap-2 min-w-0">
@@ -399,13 +401,20 @@ export default function FeaturedVideos() {
   const { videos = [] } = useArtworks();
   const [activeLightboxIndex, setActiveLightboxIndex] = useState(null);
   const [isModalMuted, setIsModalMuted] = useState(false);
+  const [navHeight, setNavHeight] = useState(64);
 
   const activeLightboxVideo =
     activeLightboxIndex !== null && videos[activeLightboxIndex]
       ? videos[activeLightboxIndex]
       : null;
 
+  const measureNavHeight = () => {
+    const navEl = document.querySelector('nav');
+    return navEl ? Math.ceil(navEl.getBoundingClientRect().height) : 64;
+  };
+
   const handleOpenLightbox = (video) => {
+    setNavHeight(measureNavHeight());
     const idx = videos.findIndex((v) => v.id === video.id);
     setActiveLightboxIndex(idx >= 0 ? idx : 0);
   };
@@ -420,12 +429,15 @@ export default function FeaturedVideos() {
     setActiveLightboxIndex((prev) => (prev + 1) % videos.length);
   };
 
-  // Lock page scroll & handle Escape / Arrow keys while reel viewer is open
+  // Lock page scroll, keep below-navbar offset synced on resize, & handle Escape / Arrow / Navbar link jumps
   useEffect(() => {
     if (activeLightboxIndex === null) return;
 
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+
+    const handleResize = () => setNavHeight(measureNavHeight());
+    const handleHashChange = () => setActiveLightboxIndex(null);
 
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
@@ -443,9 +455,13 @@ export default function FeaturedVideos() {
       }
     };
 
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('hashchange', handleHashChange);
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       document.body.style.overflow = prevOverflow;
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('hashchange', handleHashChange);
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [activeLightboxIndex, videos.length]);
@@ -509,7 +525,7 @@ export default function FeaturedVideos() {
         )}
       </div>
 
-      {/* Fullscreen Instagram-Style Reel Lightbox Modal (Portaled to document.body above Navbar) */}
+      {/* Fullscreen Instagram-Style Reel Lightbox Modal (Portaled below Navbar) */}
       {activeLightboxVideo &&
         createPortal(
           <ReelLightboxModal
@@ -517,6 +533,7 @@ export default function FeaturedVideos() {
             video={activeLightboxVideo}
             currentIndex={activeLightboxIndex}
             totalCount={videos.length}
+            navHeight={navHeight}
             isMuted={isModalMuted}
             onToggleMute={setIsModalMuted}
             onPrev={handlePrevReel}
